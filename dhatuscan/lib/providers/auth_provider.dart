@@ -66,6 +66,9 @@ class AuthProvider extends ChangeNotifier {
           notifyListeners();
         },
         onVerificationFailed: (error) {
+          debugPrint('Firebase Auth Error Code: ${error.code}');
+          debugPrint('Firebase Auth Error Message: ${error.message}');
+          debugPrint('Firebase Auth Error details: ${error.toString()}');
           _errorMessage = _mapFirebaseError(error);
           _state = AuthState.error;
           notifyListeners();
