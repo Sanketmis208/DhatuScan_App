@@ -11,6 +11,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/history_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../services/local_storage_service.dart';
+import '../../core/utils/score_calculator.dart';
 import '../../widgets/common/loading_shimmer.dart';
 
 class DashboardScreen extends StatefulWidget {
