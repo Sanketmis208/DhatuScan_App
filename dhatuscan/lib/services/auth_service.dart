@@ -4,9 +4,18 @@ import 'local_storage_service.dart';
 import 'auth_service_interface.dart';
 
 class AuthService implements AuthServiceInterface {
-  final FirebaseAuth _firebaseAuth;
+  final FirebaseAuth? _firebaseAuth;
 
-  AuthService() : _firebaseAuth = FirebaseAuth.instance;
+  AuthService() : _firebaseAuth = _getFirebaseAuth();
+
+  static FirebaseAuth? _getFirebaseAuth() {
+    try {
+      return FirebaseAuth.instance;
+    } catch (e) {
+      debugPrint('Firebase is not initialized. AuthService running in fallback/error mode.');
+      return null;
+    }
+  }
 
   /// Constructor for subclassing in tests — avoids accessing [FirebaseAuth.instance].
   @protected
@@ -26,7 +35,14 @@ class AuthService implements AuthServiceInterface {
     required Function(PhoneAuthCredential credential) onAutoVerify,
     int? resendToken,
   }) async {
-    await _firebaseAuth.verifyPhoneNumber(
+    if (_firebaseAuth == null) {
+      onVerificationFailed(FirebaseAuthException(
+        code: 'not-initialized',
+        message: 'Firebase is not initialized. Please verify your config files.',
+      ));
+      return;
+    }
+    await _firebaseAuth!.verifyPhoneNumber(
       phoneNumber: '+91$phoneNumber',
       timeout: const Duration(seconds: 60),
       forceResendingToken: resendToken,
@@ -68,28 +84,40 @@ class AuthService implements AuthServiceInterface {
     required String verificationId,
     required String smsCode,
   }) async {
+    if (_firebaseAuth == null) {
+      throw FirebaseAuthException(
+        code: 'not-initialized',
+        message: 'Firebase is not initialized.',
+      );
+    }
     final credential = PhoneAuthProvider.credential(
       verificationId: verificationId,
       smsCode: smsCode,
     );
-    return await _firebaseAuth.signInWithCredential(credential);
+    return await _firebaseAuth!.signInWithCredential(credential);
   }
 
   // Sign in with credential
   Future<UserCredential?> signInWithCredential(
       PhoneAuthCredential credential) async {
-    return await _firebaseAuth.signInWithCredential(credential);
+    if (_firebaseAuth == null) {
+      throw FirebaseAuthException(
+        code: 'not-initialized',
+        message: 'Firebase is not initialized.',
+      );
+    }
+    return await _firebaseAuth!.signInWithCredential(credential);
   }
 
   // Get current user
-  User? get currentUser => _firebaseAuth.currentUser;
+  User? get currentUser => _firebaseAuth?.currentUser;
 
   // Sign out
   Future<void> signOut() async {
-    await _firebaseAuth.signOut();
+    await _firebaseAuth?.signOut();
     await LocalStorageService.logout();
   }
 
   // Get Firebase UID
-  String? get firebaseUid => _firebaseAuth.currentUser?.uid;
+  String? get firebaseUid => _firebaseAuth?.currentUser?.uid;
 }

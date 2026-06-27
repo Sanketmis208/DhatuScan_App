@@ -16,7 +16,11 @@ Future<void> main() async {
   await LocalStorageService.init();
 
   // Initialise Firebase (required for phone OTP auth).
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Firebase initialization failed: $e');
+  }
 
   runApp(
     MultiProvider(
