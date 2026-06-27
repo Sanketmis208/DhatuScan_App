@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/local_storage_service.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   const OtpVerificationScreen({super.key});
@@ -112,7 +113,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
     if (success) {
       _timer?.cancel();
-      if (auth.isNewUser) {
+      
+      final userData = LocalStorageService.userData;
+      final isProfileComplete = userData?['isProfileComplete'] as bool? ?? false;
+
+      if (auth.isNewUser || !isProfileComplete) {
         Navigator.of(context).pushNamedAndRemoveUntil(
           '/profile/new',
           (route) => false,

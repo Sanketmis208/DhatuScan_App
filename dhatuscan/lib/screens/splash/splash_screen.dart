@@ -86,9 +86,18 @@ class _SplashScreenState extends State<SplashScreen>
   void _navigate() {
     if (!mounted) return;
     final isLoggedIn = LocalStorageService.isLoggedIn;
-    Navigator.of(context).pushReplacementNamed(
-      isLoggedIn ? AppRoutes.dashboard : AppRoutes.landing,
-    );
+    final userData = LocalStorageService.userData;
+    final isProfileComplete = userData?['isProfileComplete'] as bool? ?? false;
+
+    if (isLoggedIn) {
+      if (isProfileComplete) {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard);
+      } else {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.personalDetails);
+      }
+    } else {
+      Navigator.of(context).pushReplacementNamed(AppRoutes.landing);
+    }
   }
 
   @override
