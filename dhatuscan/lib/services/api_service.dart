@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -20,9 +21,14 @@ import 'local_storage_service.dart';
 class ApiService implements ApiServiceInterface {
   // ── Base URL ──────────────────────────────────────────────────────────────
   // Override with a production URL via app_config.dart or a build argument.
-  static const String baseUrl = 'http://10.0.2.2:3000/api'; // Android emulator
-  // static const String baseUrl = 'http://localhost:3000/api'; // iOS simulator
-  // static const String baseUrl = 'https://your-production-server.com/api';
+  static String get baseUrl {
+    try {
+      if (Platform.isAndroid) {
+        return 'http://10.0.2.2:3000/api';
+      }
+    } catch (_) {}
+    return 'http://localhost:3000/api';
+  }
 
   // ── Singleton ─────────────────────────────────────────────────────────────
   static final ApiService _instance = ApiService._internal();
