@@ -12,7 +12,7 @@ Property-based tests use the [`dart_check`](https://pub.dev/packages/dart_check)
 ## Tasks
 
 - [ ] 1. Auth Flow — Firebase OTP Phone Authentication
-  - [ ] 1.1 Migrate `ApiService` from `http` to `dio` with JWT interceptor
+  - [x] 1.1 Migrate `ApiService` from `http` to `dio` with JWT interceptor
     - Replace all `http.post`/`http.get` calls in `lib/services/api_service.dart` with `Dio` equivalents
     - Add a `Dio` request interceptor that attaches `Authorization: Bearer <token>` from `LocalStorageService.authToken`
     - Add a `Dio` response interceptor that catches HTTP 401, calls `LocalStorageService.logout()`, and broadcasts an unauthenticated event via a `GlobalKey<NavigatorState>` push to `/landing`
@@ -28,7 +28,7 @@ Property-based tests use the [`dart_check`](https://pub.dev/packages/dart_check)
     - **Validates: Requirements 3.1, 3.2, 3.3**
     - File: `test/unit/phone_validation_test.dart`
 
-  - [ ] 1.3 Implement `PhoneInputScreen`
+  - [x] 1.3 Implement `PhoneInputScreen`
     - Create `lib/screens/auth/phone_input_screen.dart`
     - Fixed `+91` prefix label + 10-digit `TextField` (numeric keyboard, `maxLength: 10`)
     - "Send OTP" button calls `AuthProvider.sendOtp(phone)`
@@ -39,7 +39,7 @@ Property-based tests use the [`dart_check`](https://pub.dev/packages/dart_check)
     - On `AuthState.error`, show `fluttertoast` with `errorMessage`
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
 
-  - [ ] 1.4 Implement `OtpVerificationScreen`
+  - [x] 1.4 Implement `OtpVerificationScreen`
     - Create `lib/screens/auth/otp_verification_screen.dart`
     - 6-digit `Pinput` widget bound to a `TextEditingController`
     - 60-second countdown using `Timer.periodic`; "Resend OTP" disabled while timer runs, enabled at zero

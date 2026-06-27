@@ -1,0 +1,73 @@
+// prisma/schema.prisma
+// DhatuScan — Prisma schema for PostgreSQL 15
+// Matches the data model defined in design.md exactly.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── User ──────────────────────────────────────────────────────────────────────
+// Stores account and profile data for every registered user.
+// firebaseUid is populated when the user has verified phone via Firebase OTP.
+// isProfileComplete is set true after PersonalDetails are submitted.
+
+model User {
+  id                String    @id @default(uuid())
+  firebaseUid       String?   @unique          // nullable: created before OTP verify
+  phone             String    @unique
+  name              String?
+  dateOfBirth       DateTime?
+  age               Int?
+  gender            String?
+  address           String?
+  height            Float?
+  weight            Float?
+  bmi               Float?
+  bp                String?
+  pulseRate         Int?
+  medicalHistory    String?
+  occupation        String?
+  physicalActivity  String?
+  sleepDuration     String?
+  appetitePattern   String?
+  waterIntake       String?
+  isProfileComplete Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  assessments Assessment[]
+
+  @@map("users")
+}
+
+// ── Assessment ────────────────────────────────────────────────────────────────
+// Stores one completed assessment per submission.
+// vkResults and sarataResult are stored as opaque JSON blobs —
+// the Flutter client is the single source of truth for computation.
+
+model Assessment {
+  id                 String   @id @default(uuid())
+  userId             String
+  assessmentDate     DateTime @default(now())
+  vkResults          Json     // serialised List<DhatuVKResult>
+  sarataResult       Json     // serialised SarataResult
+  healthIndex        Float
+  healthGrade        String
+  balanceStatus      String
+  dominantSara       String
+  secondarySara      String
+  weakestSara        String
+  predominantKshaya  String
+  predominantVriddhi String
+  createdAt          DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("assessments")
+}

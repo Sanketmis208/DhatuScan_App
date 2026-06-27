@@ -1,0 +1,13 @@
+# Prisma generated files
+node_modules/
+.env
+
+# Firebase service account (never commit)
+firebase-service-account.json
+
+# Coverage reports
+coverage/
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,6 +1,12 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/material.dart';
 import 'local_storage_service.dart';
+
+/// A [GlobalKey] for the root [Navigator]. Callers must assign this key to
+/// [MaterialApp.navigatorKey] so the 401 interceptor can push the landing
+/// route without a [BuildContext].
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class ApiService {
   // Replace with your actual backend URL
@@ -10,110 +16,161 @@ class ApiService {
 
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
-  ApiService._internal();
 
-  Map<String, String> get _headers {
-    final token = LocalStorageService.authToken;
-    return {
-      'Content-Type': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
-    };
+  late final Dio _dio;
+
+  ApiService._internal() {
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: baseUrl,
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 30),
+        headers: {'Content-Type': 'application/json'},
+      ),
+    );
+
+    // ── Request interceptor: attach JWT ──────────────────────────────────────
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          final token = LocalStorageService.authToken;
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          return handler.next(options);
+        },
+
+        // ── Response interceptor: catch 401 ─────────────────────────────────
+        onError: (DioException error, handler) async {
+          if (error.response?.statusCode == 401) {
+            await LocalStorageService.logout();
+            // Navigate to /landing and remove all previous routes from the
+            // stack so the user cannot navigate back.
+            navigatorKey.currentState
+                ?.pushNamedAndRemoveUntil('/landing', (_) => false);
+          }
+          return handler.next(error);
+        },
+      ),
+    );
   }
 
-  // Auth
+  // ── Connectivity pre-flight ──────────────────────────────────────────────
+
+  Future<void> _checkConnectivity() async {
+    final results = await Connectivity().checkConnectivity();
+    final isOffline = results.isEmpty ||
+        results.every((r) => r == ConnectivityResult.none);
+    if (isOffline) {
+      throw const ApiException(
+        statusCode: 0,
+        message:
+            'No internet connection. Please check your network and try again.',
+      );
+    }
+  }
+
+  // ── Auth ─────────────────────────────────────────────────────────────────
+
   Future<Map<String, dynamic>> checkUser(String phone,
       {String? firebaseUid}) async {
-    final response = await http
-        .post(
-          Uri.parse('$baseUrl/auth/check-user'),
-          headers: _headers,
-          body: jsonEncode({'phone': phone, 'firebaseUid': firebaseUid}),
-        )
-        .timeout(const Duration(seconds: 15));
-
+    await _checkConnectivity();
+    final response = await _dio.post(
+      '/auth/check-user',
+      data: {'phone': phone, 'firebaseUid': firebaseUid},
+    );
     return _handleResponse(response);
   }
 
-  // User Profile
+  // ── User Profile ─────────────────────────────────────────────────────────
+
   Future<Map<String, dynamic>> saveProfile(
       Map<String, dynamic> profileData) async {
-    final response = await http
-        .post(
-          Uri.parse('$baseUrl/user/profile'),
-          headers: _headers,
-          body: jsonEncode(profileData),
-        )
-        .timeout(const Duration(seconds: 15));
-
+    await _checkConnectivity();
+    final response = await _dio.post('/user/profile', data: profileData);
     return _handleResponse(response);
   }
 
   Future<Map<String, dynamic>> getProfile(String userId) async {
-    final response = await http
-        .get(
-          Uri.parse('$baseUrl/user/profile/$userId'),
-          headers: _headers,
-        )
-        .timeout(const Duration(seconds: 15));
-
+    await _checkConnectivity();
+    final response = await _dio.get('/user/profile/$userId');
     return _handleResponse(response);
   }
 
-  // Assessment
+  // ── Assessment ───────────────────────────────────────────────────────────
+
   Future<Map<String, dynamic>> submitAssessment(
       Map<String, dynamic> assessmentData) async {
-    final response = await http
-        .post(
-          Uri.parse('$baseUrl/assessment/submit'),
-          headers: _headers,
-          body: jsonEncode(assessmentData),
-        )
-        .timeout(const Duration(seconds: 30));
-
+    await _checkConnectivity();
+    final response = await _dio.post(
+      '/assessment/submit',
+      data: assessmentData,
+    );
     return _handleResponse(response);
   }
 
   Future<Map<String, dynamic>> getAssessmentHistory(String userId) async {
-    final response = await http
-        .get(
-          Uri.parse('$baseUrl/assessment/history/$userId'),
-          headers: _headers,
-        )
-        .timeout(const Duration(seconds: 15));
-
+    await _checkConnectivity();
+    final response = await _dio.get('/assessment/history/$userId');
     return _handleResponse(response);
   }
 
   Future<Map<String, dynamic>> getAssessment(String assessmentId) async {
-    final response = await http
-        .get(
-          Uri.parse('$baseUrl/assessment/$assessmentId'),
-          headers: _headers,
-        )
-        .timeout(const Duration(seconds: 15));
-
+    await _checkConnectivity();
+    final response = await _dio.get('/assessment/$assessmentId');
     return _handleResponse(response);
   }
 
-  Map<String, dynamic> _handleResponse(http.Response response) {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return jsonDecode(response.body) as Map<String, dynamic>;
-    } else {
-      final body = jsonDecode(response.body) as Map<String, dynamic>;
-      throw ApiException(
-        statusCode: response.statusCode,
-        message: body['message'] as String? ?? 'Request failed',
-      );
+  // ── Response handler ─────────────────────────────────────────────────────
+
+  Map<String, dynamic> _handleResponse(Response response) {
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      return data;
     }
+    // Defensive: return an empty map if the body is not an object.
+    return {};
   }
 }
+
+// ── Exceptions ──────────────────────────────────────────────────────────────
 
 class ApiException implements Exception {
   final int statusCode;
   final String message;
 
-  ApiException({required this.statusCode, required this.message});
+  const ApiException({required this.statusCode, required this.message});
 
   @override
   String toString() => 'ApiException($statusCode): $message';
+}
+
+// ── Dio error → ApiException translation ────────────────────────────────────
+
+/// Converts a [DioException] thrown by [Dio] into an [ApiException] so
+/// callers do not need to depend on `dio` directly.
+ApiException dioExceptionToApiException(DioException e) {
+  if (e.type == DioExceptionType.connectionError ||
+      e.type == DioExceptionType.unknown) {
+    return const ApiException(
+      statusCode: 0,
+      message:
+          'No internet connection. Please check your network and try again.',
+    );
+  }
+  if (e.type == DioExceptionType.connectionTimeout ||
+      e.type == DioExceptionType.sendTimeout ||
+      e.type == DioExceptionType.receiveTimeout) {
+    return const ApiException(
+      statusCode: 0,
+      message: 'Request timed out. Please try again.',
+    );
+  }
+  final statusCode = e.response?.statusCode ?? 0;
+  final body = e.response?.data;
+  String message = 'Request failed';
+  if (body is Map<String, dynamic>) {
+    message = body['message'] as String? ?? message;
+  }
+  return ApiException(statusCode: statusCode, message: message);
 }
