@@ -33,6 +33,7 @@ dev_dependencies:
   mockito: ^5.4.4
   build_runner: ^2.4.8
   dart_check: ^1.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
@@ -47,3 +48,10 @@ flutter:
         - asset: assets/fonts/NotoSansDevanagari-Regular.ttf
         - asset: assets/fonts/NotoSansDevanagari-Bold.ttf
           weight: 700
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/dhatu_logo.png"
+  adaptive_icon_background: "#0D3D3B"
+  adaptive_icon_foreground: "assets/images/dhatu_logo.png"
