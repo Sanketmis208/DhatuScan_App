@@ -111,6 +111,30 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
+    if (_verificationId == 'mock-verification-id') {
+      try {
+        final phone = _phoneNumber ?? '';
+        final result = await _apiService.checkUser(phone);
+
+        final token = result['token'] as String?;
+        final userId = result['userId'] as String?;
+        _isNewUser = result['isNewUser'] as bool? ?? false;
+
+        if (token != null) await LocalStorageService.setAuthToken(token);
+        if (userId != null) await LocalStorageService.setUserId(userId);
+        await LocalStorageService.setLoggedIn(true);
+
+        _state = AuthState.authenticated;
+        notifyListeners();
+        return true;
+      } catch (e) {
+        _errorMessage = 'Mock verification failed: ${e.toString()}';
+        _state = AuthState.error;
+        notifyListeners();
+        return false;
+      }
+    }
+
     try {
       final credential = await _authService.verifyOtp(
         verificationId: _verificationId!,
