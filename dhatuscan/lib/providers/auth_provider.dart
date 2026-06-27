@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
+import '../services/auth_service_interface.dart';
 import '../services/api_service.dart';
+import '../services/api_service_interface.dart';
 import '../services/local_storage_service.dart';
 
 enum AuthState {
@@ -14,8 +16,21 @@ enum AuthState {
 }
 
 class AuthProvider extends ChangeNotifier {
-  final AuthService _authService = AuthService();
-  final ApiService _apiService = ApiService();
+  late final AuthServiceInterface _authService;
+  late final ApiServiceInterface _apiService;
+
+  /// Default constructor — uses the real singleton services.
+  AuthProvider()
+      : _authService = AuthService(),
+        _apiService = ApiService();
+
+  /// Test-only constructor — accepts injected fakes/mocks.
+  @visibleForTesting
+  AuthProvider.withServices({
+    required AuthServiceInterface authService,
+    required ApiServiceInterface apiService,
+  })  : _authService = authService,
+        _apiService = apiService;
 
   AuthState _state = AuthState.initial;
   String? _verificationId;

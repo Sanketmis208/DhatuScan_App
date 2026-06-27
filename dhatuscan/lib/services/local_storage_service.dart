@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorageService {
@@ -14,6 +15,12 @@ class LocalStorageService {
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
+  }
+
+  /// Inject a [SharedPreferences] instance directly — used in tests.
+  @visibleForTesting
+  static void initWithPrefs(SharedPreferences prefs) {
+    _prefs = prefs;
   }
 
   static SharedPreferences get _instance {

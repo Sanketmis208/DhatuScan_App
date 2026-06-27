@@ -11,8 +11,8 @@ Property-based tests use the [`dart_check`](https://pub.dev/packages/dart_check)
 
 ## Tasks
 
-- [ ] 1. Auth Flow — Firebase OTP Phone Authentication
-  - [ ] 1.1 Migrate `ApiService` from `http` to `dio` with JWT interceptor
+- [x] 1. Auth Flow — Firebase OTP Phone Authentication
+  - [x] 1.1 Migrate `ApiService` from `http` to `dio` with JWT interceptor
     - Replace all `http.post`/`http.get` calls in `lib/services/api_service.dart` with `Dio` equivalents
     - Add a `Dio` request interceptor that attaches `Authorization: Bearer <token>` from `LocalStorageService.authToken`
     - Add a `Dio` response interceptor that catches HTTP 401, calls `LocalStorageService.logout()`, and broadcasts an unauthenticated event via a `GlobalKey<NavigatorState>` push to `/landing`
@@ -20,7 +20,7 @@ Property-based tests use the [`dart_check`](https://pub.dev/packages/dart_check)
     - Remove the `http` import once migration is complete
     - _Requirements: 14.1, 14.2, 14.3, 14.4_
 
-  - [ ]* 1.2 Write property test — Phone input validation (Property 1)
+  - [x]* 1.2 Write property test — Phone input validation (Property 1)
     - **Property 1: Phone input validation**
     - *For any* string input, `validatePhone(input)` SHALL accept it if and only if it matches `/^\d{10}$/`
     - Use `dart_check` arbitrary string generator (alphanumeric, shorter, longer, special chars)
@@ -28,7 +28,7 @@ Property-based tests use the [`dart_check`](https://pub.dev/packages/dart_check)
     - **Validates: Requirements 3.1, 3.2, 3.3**
     - File: `test/unit/phone_validation_test.dart`
 
-  - [ ] 1.3 Implement `PhoneInputScreen`
+  - [x] 1.3 Implement `PhoneInputScreen`
     - Create `lib/screens/auth/phone_input_screen.dart`
     - Fixed `+91` prefix label + 10-digit `TextField` (numeric keyboard, `maxLength: 10`)
     - "Send OTP" button calls `AuthProvider.sendOtp(phone)`
@@ -39,7 +39,7 @@ Property-based tests use the [`dart_check`](https://pub.dev/packages/dart_check)
     - On `AuthState.error`, show `fluttertoast` with `errorMessage`
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
 
-  - [ ] 1.4 Implement `OtpVerificationScreen`
+  - [x] 1.4 Implement `OtpVerificationScreen`
     - Create `lib/screens/auth/otp_verification_screen.dart`
     - 6-digit `Pinput` widget bound to a `TextEditingController`
     - 60-second countdown using `Timer.periodic`; "Resend OTP" disabled while timer runs, enabled at zero
@@ -51,7 +51,7 @@ Property-based tests use the [`dart_check`](https://pub.dev/packages/dart_check)
     - On expired OTP: show toast prompting resend
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 4.10_
 
-  - [ ]* 1.5 Write unit tests — Auth state transitions
+  - [x]* 1.5 Write unit tests — Auth state transitions
     - Mock `AuthService` and `ApiService`; verify `AuthState` transitions for sendOtp, verifyOtp success/failure/expiry
     - Verify 401 from `checkUser` triggers logout and navigation
     - File: `test/unit/auth_provider_test.dart`

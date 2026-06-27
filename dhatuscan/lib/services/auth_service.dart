@@ -1,8 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'local_storage_service.dart';
+import 'auth_service_interface.dart';
 
-class AuthService {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+class AuthService implements AuthServiceInterface {
+  final FirebaseAuth _firebaseAuth;
+
+  AuthService() : _firebaseAuth = FirebaseAuth.instance;
+
+  /// Constructor for subclassing in tests — avoids accessing [FirebaseAuth.instance].
+  @protected
+  AuthService.fromFirebaseAuth(FirebaseAuth firebaseAuth)
+      : _firebaseAuth = firebaseAuth;
 
   String? _verificationId;
   int? _resendToken;
@@ -20,17 +29,17 @@ class AuthService {
     await _firebaseAuth.verifyPhoneNumber(
       phoneNumber: '+91$phoneNumber',
       timeout: const Duration(seconds: 60),
-      resendToken: resendToken,
+      forceResendingToken: resendToken,
       verificationCompleted: (PhoneAuthCredential credential) {
         onAutoVerify(credential);
       },
       verificationFailed: (FirebaseAuthException e) {
         onVerificationFailed(e);
       },
-      codeSent: (String verificationId, int? resendToken) {
+      codeSent: (String verificationId, int? forceResendingToken) {
         _verificationId = verificationId;
-        _resendToken = resendToken;
-        onCodeSent(verificationId, resendToken);
+        _resendToken = forceResendingToken;
+        onCodeSent(verificationId, forceResendingToken);
       },
       codeAutoRetrievalTimeout: (String verificationId) {
         _verificationId = verificationId;
