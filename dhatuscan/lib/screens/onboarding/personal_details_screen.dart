@@ -163,219 +163,221 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
   // ── Build ───────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top;
+
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColors.background,
-        body: CustomScrollView(
-          slivers: [
-            // ── Collapsing App Bar ───────────────────────────────────────
-            SliverAppBar(
-              expandedHeight: 160,
-              pinned: true,
-              automaticallyImplyLeading: false,
-              backgroundColor: AppColors.primary,
-              flexibleSpace: FlexibleSpaceBar(
-                titlePadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                title: Text(
-                  AppStrings.personalDetailsTitle,
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                background: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF0D3D3B), Color(0xFF1A5C5A)],
+        backgroundColor: AppColors.primary,
+        body: Column(
+          children: [
+            // ── Custom Header ──────────────────────────────────────────────
+            Container(
+              padding: EdgeInsets.fromLTRB(20, topPadding + 16, 20, 24),
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppStrings.personalDetailsTitle,
+                    style: GoogleFonts.poppins(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
                     ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 60, 20, 48),
-                    child: Text(
-                      'Tell us about yourself so we can\npersonalise your Dhatu assessment.',
-                      style: GoogleFonts.lato(
-                        fontSize: 13,
-                        color: Colors.white70,
-                        height: 1.5,
-                      ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tell us about yourself so we can personalise your Dhatu assessment.',
+                    style: GoogleFonts.lato(
+                      fontSize: 14,
+                      color: Colors.white.withOpacity(0.7),
+                      height: 1.4,
                     ),
                   ),
-                ),
+                ],
               ),
             ),
 
             // ── Form Content ─────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Form(
-                key: _formKey,
-                autovalidateMode: _submitted
-                    ? AutovalidateMode.onUserInteraction
-                    : AutovalidateMode.disabled,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // ── Basic Info ────────────────────────────────────
-                      _SectionCard(
-                        icon: Icons.person_outline_rounded,
-                        title: 'Basic Information',
-                        children: [
-                          _buildNameField(),
-                          const SizedBox(height: 14),
-                          _buildDobField(),
-                          const SizedBox(height: 14),
-                          _buildAgeField(),
-                          const SizedBox(height: 14),
-                          _buildGenderDropdown(),
-                          const SizedBox(height: 14),
-                          _buildAddressField(),
-                        ],
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // ── Physical Measurements ─────────────────────────
-                      _SectionCard(
-                        icon: Icons.straighten_rounded,
-                        title: 'Physical Measurements',
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(child: _buildHeightField()),
-                              const SizedBox(width: 12),
-                              Expanded(child: _buildWeightField()),
-                            ],
-                          ),
-                          const SizedBox(height: 14),
-                          _buildBmiField(),
-                          const SizedBox(height: 14),
-                          Row(
-                            children: [
-                              Expanded(child: _buildBpField()),
-                              const SizedBox(width: 12),
-                              Expanded(child: _buildPulseField()),
-                            ],
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // ── Medical & Lifestyle ───────────────────────────
-                      _SectionCard(
-                        icon: Icons.favorite_outline_rounded,
-                        title: 'Medical & Lifestyle',
-                        children: [
-                          _buildMedHistField(),
-                          const SizedBox(height: 14),
-                          _buildOccupField(),
-                          const SizedBox(height: 14),
-                          _buildDropdown(
-                            label: AppStrings.physicalActivityLabel,
-                            value: _physicalActivity,
-                            items: _physicalActivityOptions,
-                            onChanged: (v) =>
-                                setState(() => _physicalActivity = v),
-                          ),
-                          const SizedBox(height: 14),
-                          _buildDropdown(
-                            label: AppStrings.sleepDurationLabel,
-                            value: _sleepDuration,
-                            items: _sleepOptions,
-                            onChanged: (v) =>
-                                setState(() => _sleepDuration = v),
-                          ),
-                          const SizedBox(height: 14),
-                          _buildDropdown(
-                            label: AppStrings.appetiteLabel,
-                            value: _appetitePattern,
-                            items: _appetiteOptions,
-                            onChanged: (v) =>
-                                setState(() => _appetitePattern = v),
-                          ),
-                          const SizedBox(height: 14),
-                          _buildDropdown(
-                            label: AppStrings.waterIntakeLabel,
-                            value: _waterIntake,
-                            items: _waterOptions,
-                            onChanged: (v) =>
-                                setState(() => _waterIntake = v),
-                          ),
-                          // Gender-conditional menstrual field
-                          if (_gender == 'Female') ...[
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: _submitted
+                        ? AutovalidateMode.onUserInteraction
+                        : AutovalidateMode.disabled,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // ── Basic Info ────────────────────────────────────
+                        _SectionCard(
+                          icon: Icons.person_outline_rounded,
+                          title: 'Basic Information',
+                          children: [
+                            _buildNameField(),
                             const SizedBox(height: 14),
-                            _buildMenstrualField(),
+                            _buildDobField(),
+                            const SizedBox(height: 14),
+                            _buildAgeField(),
+                            const SizedBox(height: 14),
+                            _buildGenderDropdown(),
+                            const SizedBox(height: 14),
+                            _buildAddressField(),
                           ],
-                        ],
-                      ),
+                        ),
 
-                      const SizedBox(height: 28),
+                        const SizedBox(height: 16),
 
-                      // ── Submit button ─────────────────────────────────
-                      Consumer<UserProvider>(
-                        builder: (_, up, __) {
-                          return GestureDetector(
-                            onTap: up.isLoading ? null : _onSubmit,
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 18),
-                              decoration: BoxDecoration(
-                                gradient: up.isLoading
-                                    ? LinearGradient(colors: [
-                                        Colors.grey.shade400,
-                                        Colors.grey.shade400
-                                      ])
-                                    : const LinearGradient(
-                                        colors: [
-                                          Color(0xFF1A5C5A),
-                                          Color(0xFF2A7D7A)
-                                        ],
-                                      ),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: up.isLoading
-                                    ? []
-                                    : [
-                                        BoxShadow(
-                                          color: AppColors.primary
-                                              .withOpacity(0.4),
-                                          blurRadius: 16,
-                                          offset: const Offset(0, 6),
+                        // ── Physical Measurements ─────────────────────────
+                        _SectionCard(
+                          icon: Icons.straighten_rounded,
+                          title: 'Physical Measurements',
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(child: _buildHeightField()),
+                                const SizedBox(width: 12),
+                                Expanded(child: _buildWeightField()),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            _buildBmiField(),
+                            const SizedBox(height: 14),
+                            Row(
+                              children: [
+                                Expanded(child: _buildBpField()),
+                                const SizedBox(width: 12),
+                                Expanded(child: _buildPulseField()),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // ── Medical & Lifestyle ───────────────────────────
+                        _SectionCard(
+                          icon: Icons.favorite_outline_rounded,
+                          title: 'Medical & Lifestyle',
+                          children: [
+                            _buildMedHistField(),
+                            const SizedBox(height: 14),
+                            _buildOccupField(),
+                            const SizedBox(height: 14),
+                            _buildDropdown(
+                              label: AppStrings.physicalActivityLabel,
+                              value: _physicalActivity,
+                              items: _physicalActivityOptions,
+                              onChanged: (v) =>
+                                  setState(() => _physicalActivity = v),
+                            ),
+                            const SizedBox(height: 14),
+                            _buildDropdown(
+                              label: AppStrings.sleepDurationLabel,
+                              value: _sleepDuration,
+                              items: _sleepOptions,
+                              onChanged: (v) =>
+                                  setState(() => _sleepDuration = v),
+                            ),
+                            const SizedBox(height: 14),
+                            _buildDropdown(
+                              label: AppStrings.appetiteLabel,
+                              value: _appetitePattern,
+                              items: _appetiteOptions,
+                              onChanged: (v) =>
+                                  setState(() => _appetitePattern = v),
+                            ),
+                            const SizedBox(height: 14),
+                            _buildDropdown(
+                              label: AppStrings.waterIntakeLabel,
+                              value: _waterIntake,
+                              items: _waterOptions,
+                              onChanged: (v) =>
+                                  setState(() => _waterIntake = v),
+                            ),
+                            // Gender-conditional menstrual field
+                            if (_gender == 'Female') ...[
+                              const SizedBox(height: 14),
+                              _buildMenstrualField(),
+                            ],
+                          ],
+                        ),
+
+                        const SizedBox(height: 28),
+
+                        // ── Submit button ─────────────────────────────────
+                        Consumer<UserProvider>(
+                          builder: (_, up, __) {
+                            return GestureDetector(
+                              onTap: up.isLoading ? null : _onSubmit,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 18),
+                                decoration: BoxDecoration(
+                                  gradient: up.isLoading
+                                      ? LinearGradient(colors: [
+                                          Colors.grey.shade400,
+                                          Colors.grey.shade400
+                                        ])
+                                      : const LinearGradient(
+                                          colors: [
+                                            Color(0xFF1A5C5A),
+                                            Color(0xFF2A7D7A)
+                                          ],
                                         ),
-                                      ],
-                              ),
-                              child: up.isLoading
-                                  ? const Center(
-                                      child: SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.5,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: up.isLoading
+                                      ? []
+                                      : [
+                                          BoxShadow(
+                                            color: AppColors.primary
+                                                .withOpacity(0.4),
+                                            blurRadius: 16,
+                                            offset: const Offset(0, 6),
+                                          ),
+                                        ],
+                                ),
+                                child: up.isLoading
+                                    ? const Center(
+                                        child: SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.5,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      )
+                                    : Text(
+                                        AppStrings.saveAndContinue,
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
                                           color: Colors.white,
                                         ),
                                       ),
-                                    )
-                                  : Text(
-                                      AppStrings.saveAndContinue,
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                            ),
-                          );
-                        },
-                      ),
+                              ),
+                            );
+                          },
+                        ),
 
-                      const SizedBox(height: 40),
-                    ],
+                        const SizedBox(height: 40),
+                      ],
+                    ),
                   ),
                 ),
               ),

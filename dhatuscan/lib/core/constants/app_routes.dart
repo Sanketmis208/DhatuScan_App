@@ -32,4 +32,5 @@ class AppRoutes {
   static const String assessment = assessmentHome;
   /// Alias for [result]. Used by DashboardScreen to navigate to a past result.
   static const String assessmentResult = result;
+  static const String history = '/history';
 }

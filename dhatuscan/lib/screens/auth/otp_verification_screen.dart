@@ -116,8 +116,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       
       final userData = LocalStorageService.userData;
       final isProfileComplete = userData?['isProfileComplete'] as bool? ?? false;
+      final hasName = userData?['name'] != null && (userData?['name'] as String).trim().isNotEmpty;
+      final hasProfile = isProfileComplete || hasName;
 
-      if (auth.isNewUser || !isProfileComplete) {
+      if (auth.isNewUser || !hasProfile) {
         Navigator.of(context).pushNamedAndRemoveUntil(
           '/profile/new',
           (route) => false,

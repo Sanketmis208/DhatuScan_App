@@ -105,101 +105,126 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Consumer<AuthProvider>(
-          builder: (context, auth, _) {
-            final isSending = auth.state == AuthState.sendingOtp;
-
-            return GestureDetector(
-              onTap: () => FocusScope.of(context).unfocus(),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 60),
-
-                    // ── Logo / branding ─────────────────────────────────────
-                    Center(
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          gradient: AppColors.primaryGradient,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Icon(
-                          Icons.health_and_safety_outlined,
-                          color: Colors.white,
-                          size: 44,
-                        ),
+      backgroundColor: AppColors.primary,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Column(
+          children: [
+            // ── Header Section (Dark Green background) ──────────────────────
+            Container(
+              padding: EdgeInsets.fromLTRB(24, topPadding + 16, 24, 28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Back button with translucent backdrop
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: Colors.white,
+                        size: 16,
                       ),
                     ),
-                    const SizedBox(height: 24),
-
-                    // ── Title ───────────────────────────────────────────────
-                    Text(
-                      AppStrings.phoneInputTitle,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    AppStrings.phoneInputTitle,
+                    style: GoogleFonts.poppins(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      AppStrings.phoneInputSubtitle,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    AppStrings.phoneInputSubtitle,
+                    style: GoogleFonts.lato(
+                      fontSize: 14,
+                      color: Colors.white.withOpacity(0.7),
+                      height: 1.4,
                     ),
-                    const SizedBox(height: 40),
+                  ),
+                ],
+              ),
+            ),
 
-                    // ── Phone input form ────────────────────────────────────
-                    Form(
-                      key: _formKey,
-                      autovalidateMode: _submitted
-                          ? AutovalidateMode.onUserInteraction
-                          : AutovalidateMode.disabled,
-                      child: _PhoneField(controller: _phoneController),
-                    ),
-                    const SizedBox(height: 32),
+            // ── Form Section (White Bottom Card) ───────────────────────────
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Consumer<AuthProvider>(
+                    builder: (context, auth, _) {
+                      final isSending = auth.state == AuthState.sendingOtp;
 
-                    // ── Send OTP button / loading indicator ─────────────────
-                    if (isSending)
-                      const Center(child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ))
-                    else
-                      ElevatedButton(
-                        onPressed: isSending ? null : _onSendOtp,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size.fromHeight(52),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 16),
+                          Form(
+                            key: _formKey,
+                            autovalidateMode: _submitted
+                                ? AutovalidateMode.onUserInteraction
+                                : AutovalidateMode.disabled,
+                            child: _PhoneField(controller: _phoneController),
                           ),
-                          elevation: 2,
-                        ),
-                        child: Text(
-                          AppStrings.sendOtp,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                    const SizedBox(height: 24),
-                  ],
+                          const SizedBox(height: 32),
+
+                          // Send OTP button / loading indicator
+                          if (isSending)
+                            const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.primary,
+                              ),
+                            )
+                          else
+                            ElevatedButton(
+                              onPressed: isSending ? null : _onSendOtp,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size.fromHeight(52),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
+                              ),
+                              child: Text(
+                                AppStrings.sendOtp,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          const SizedBox(height: 24),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );

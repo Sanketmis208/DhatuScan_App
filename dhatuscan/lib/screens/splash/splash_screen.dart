@@ -88,9 +88,11 @@ class _SplashScreenState extends State<SplashScreen>
     final isLoggedIn = LocalStorageService.isLoggedIn;
     final userData = LocalStorageService.userData;
     final isProfileComplete = userData?['isProfileComplete'] as bool? ?? false;
+    final hasName = userData?['name'] != null && (userData?['name'] as String).trim().isNotEmpty;
+    final hasProfile = isProfileComplete || hasName;
 
     if (isLoggedIn) {
-      if (isProfileComplete) {
+      if (hasProfile) {
         Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard);
       } else {
         Navigator.of(context).pushReplacementNamed(AppRoutes.personalDetails);
@@ -191,11 +193,23 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            AppStrings.tagline,
+                            'स्वास्थ्य का सही स्कैन',
+                            style: const TextStyle(
+                              fontFamily: 'NotoSansDevanagari',
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.accent,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Swasthya ka Sahi Scan',
                             style: GoogleFonts.lato(
-                              fontSize: 14,
-                              color: Colors.white60,
-                              letterSpacing: 1,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white70,
+                              letterSpacing: 1.2,
                             ),
                           ),
                         ],
