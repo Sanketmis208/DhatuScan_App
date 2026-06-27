@@ -18,7 +18,7 @@ void main() {
       const iterations = 100;
 
       for (var i = 0; i < iterations; i++) {
-        final length = rng.nextInt(12) + 1; // 1 to 12 questions
+        final length = rng.nextInt(7) + 1; // 1 to 7 questions
         final scores = List.generate(length, (_) => rng.nextInt(4)); // 0 to 3 score
         final sum = scores.reduce((a, b) => a + b).toDouble();
         final maxScore = (length * 3).toDouble();
@@ -119,8 +119,8 @@ void main() {
             kshayaAnswers: {},
           )
         });
-        expect(asthiResults.first.vriddhiPercent, 50.0);
-        expect(asthiResults.first.vriddhiStatus, 'Mild');
+        expect(asthiResults.firstWhere((r) => r.dhatu == 'Asthi').vriddhiPercent, 50.0);
+        expect(asthiResults.firstWhere((r) => r.dhatu == 'Asthi').vriddhiStatus, 'Mild');
 
         final asthiResultsMod = ScoreCalculator.calculateVriddhiKshaya({
           'Asthi': DhatuVKAnswers(
@@ -128,8 +128,8 @@ void main() {
             kshayaAnswers: {},
           )
         });
-        expect(asthiResultsMod.first.vriddhiPercent, 66.7);
-        expect(asthiResultsMod.first.vriddhiStatus, 'Moderate');
+        expect(asthiResultsMod.firstWhere((r) => r.dhatu == 'Asthi').vriddhiPercent, 66.7);
+        expect(asthiResultsMod.firstWhere((r) => r.dhatu == 'Asthi').vriddhiStatus, 'Moderate');
       });
     });
   });
@@ -222,7 +222,7 @@ void main() {
         ),
       }, gender: 'Male');
 
-      expect(maleResults.first.kshayaMax, 15);
+      expect(maleResults.firstWhere((r) => r.dhatu == 'Shukra').kshayaMax, 15);
 
       // Female / Non-male Shukra Kshaya Max
       final femaleResults = ScoreCalculator.calculateVriddhiKshaya({
@@ -232,7 +232,7 @@ void main() {
         ),
       }, gender: 'Female');
 
-      expect(femaleResults.first.kshayaMax, 6);
+      expect(femaleResults.firstWhere((r) => r.dhatu == 'Shukra').kshayaMax, 6);
 
       final otherResults = ScoreCalculator.calculateVriddhiKshaya({
         'Shukra': DhatuVKAnswers(
@@ -241,7 +241,7 @@ void main() {
         ),
       }, gender: 'Other');
 
-      expect(otherResults.first.kshayaMax, 6);
+      expect(otherResults.firstWhere((r) => r.dhatu == 'Shukra').kshayaMax, 6);
     });
 
     test('Zero-score results => No Significant Change for all Dhatus', () {

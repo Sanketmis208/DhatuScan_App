@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -68,7 +69,7 @@ class DhatuBarChart extends StatelessWidget {
                 maxY: 100,
                 barTouchData: BarTouchData(
                   touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => AppColors.primary,
+                    tooltipBgColor: AppColors.primary,
                     getTooltipItem: (group, groupIndex, rod, rodIndex) {
                       final dhatu = vkResults[groupIndex].dhatu;
                       final type = rodIndex == 0 ? 'Vriddhi' : 'Kshaya';
