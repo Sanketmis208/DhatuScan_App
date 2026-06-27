@@ -11,6 +11,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_routes.dart';
 import '../../core/constants/app_strings.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/local_storage_service.dart';
 
 /// Screen that collects the 6-digit OTP and verifies the user's phone number
 /// via Firebase Phone Authentication.
@@ -156,7 +157,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
           _verifyTapped = false;
-          if (authProvider.isNewUser) {
+          
+          final userData = LocalStorageService.userData;
+          final isProfileComplete = userData?['isProfileComplete'] as bool? ?? false;
+
+          if (authProvider.isNewUser || !isProfileComplete) {
             Navigator.pushNamedAndRemoveUntil(
               context,
               AppRoutes.personalDetails,

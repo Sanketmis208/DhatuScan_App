@@ -6,6 +6,7 @@
 //   SplashScreen: isLoggedIn = false → pushReplacementNamed('/landing')
 //   LandingScreen: tap "Begin Assessment" → pushNamed('/phone')
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,10 +24,11 @@ Widget _wrap(Widget child, {String? currentRoute}) {
   return MaterialApp(
     initialRoute: currentRoute ?? AppRoutes.splash,
     routes: {
-      AppRoutes.splash:    (_) => child,
-      AppRoutes.landing:   (_) => const Scaffold(body: Text('landing')),
-      AppRoutes.phone:     (_) => const Scaffold(body: Text('phone')),
-      AppRoutes.dashboard: (_) => const Scaffold(body: Text('dashboard')),
+      AppRoutes.splash:          (_) => child,
+      AppRoutes.landing:         (_) => const Scaffold(body: Text('landing')),
+      AppRoutes.phone:           (_) => const Scaffold(body: Text('phone')),
+      AppRoutes.dashboard:       (_) => const Scaffold(body: Text('dashboard')),
+      AppRoutes.personalDetails: (_) => const Scaffold(body: Text('personalDetails')),
     },
     onUnknownRoute: (s) =>
         MaterialPageRoute(builder: (_) => const Scaffold(body: Text('?'))),
@@ -34,9 +36,10 @@ Widget _wrap(Widget child, {String? currentRoute}) {
 }
 
 /// Initialises SharedPreferences with [isLoggedIn] before building the widget.
-Future<void> _initPrefs({required bool isLoggedIn}) async {
+Future<void> _initPrefs({required bool isLoggedIn, Map<String, dynamic>? userData}) async {
   SharedPreferences.setMockInitialValues({
     'isLoggedIn': isLoggedIn,
+    if (userData != null) 'userData': jsonEncode(userData),
   });
   await LocalStorageService.init();
 }
@@ -52,7 +55,7 @@ void main() {
   // ── SplashScreen ────────────────────────────────────────────────────────────
   group('SplashScreen routing', () {
     testWidgets('isLoggedIn=true → navigates to /dashboard', (tester) async {
-      await _initPrefs(isLoggedIn: true);
+      await _initPrefs(isLoggedIn: true, userData: {'isProfileComplete': true});
 
       await tester.pumpWidget(_wrap(const SplashScreen()));
       // Pump through the 2.5 s delay.
@@ -62,6 +65,17 @@ void main() {
       // After navigation the stub 'dashboard' screen should be visible.
       expect(find.text('dashboard'), findsOneWidget);
       expect(find.text('landing'), findsNothing);
+    });
+
+    testWidgets('isLoggedIn=true, isProfileComplete=false → navigates to /profile/new', (tester) async {
+      await _initPrefs(isLoggedIn: true, userData: {'isProfileComplete': false});
+
+      await tester.pumpWidget(_wrap(const SplashScreen()));
+      await tester.pump(const Duration(milliseconds: 2600));
+      await tester.pumpAndSettle();
+
+      expect(find.text('personalDetails'), findsOneWidget);
+      expect(find.text('dashboard'), findsNothing);
     });
 
     testWidgets('isLoggedIn=false → navigates to /landing', (tester) async {

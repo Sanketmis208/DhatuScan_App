@@ -188,6 +188,11 @@ class AuthProvider extends ChangeNotifier {
       final userId = result['userId'] as String?;
       _isNewUser = result['isNewUser'] as bool? ?? false;
 
+      final userMap = result['user'] as Map<String, dynamic>?;
+      if (userMap != null) {
+        await LocalStorageService.setUserData(userMap);
+      }
+
       if (token != null) await LocalStorageService.setAuthToken(token);
       if (userId != null) await LocalStorageService.setUserId(userId);
       await LocalStorageService.setLoggedIn(true);

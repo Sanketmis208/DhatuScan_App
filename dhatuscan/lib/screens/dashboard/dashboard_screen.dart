@@ -25,10 +25,12 @@ class _DashboardScreenState extends State<DashboardScreen>
   bool _loading = true;
   late final AnimationController _fadeCtrl;
   late final Animation<double> _fadeAnim;
+  late final ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
     _fadeCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -104,6 +106,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void dispose() {
     _fadeCtrl.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -194,6 +197,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     final firstName = user?.name?.split(' ').first ?? 'Friend';
 
     return ListView(
+      controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
       children: [
         // ── Header banner ─────────────────────────────────────────────────
@@ -232,7 +236,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                 icon: Icons.history_rounded,
                 label: 'View\nHistory',
                 color: const Color(0xFF7E57C2),
-                onTap: () {},
+                onTap: () {
+                  _scrollController.animateTo(
+                    _scrollController.position.maxScrollExtent,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  );
+                },
               ),
             ),
             const SizedBox(width: 12),
@@ -241,7 +251,26 @@ class _DashboardScreenState extends State<DashboardScreen>
                 icon: Icons.spa_outlined,
                 label: 'Recommen-\ndations',
                 color: AppColors.accent,
-                onTap: () {},
+                onTap: () {
+                  if (latest != null) {
+                    final affectedDhatus =
+                        ScoreCalculator.getTopAffectedDhatus(latest.vkResults);
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.recommendations,
+                      arguments: affectedDhatus,
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: AppColors.primary,
+                        content: Text(
+                          'Please complete your first assessment to view recommendations.',
+                          style: GoogleFonts.poppins(color: Colors.white),
+                        ),
+                      ),
+                    );
+                  }
+                },
               ),
             ),
           ],
@@ -255,7 +284,13 @@ class _DashboardScreenState extends State<DashboardScreen>
           trailing: history.isEmpty
               ? null
               : TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _scrollController.animateTo(
+                      _scrollController.position.maxScrollExtent,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                    );
+                  },
                   child: Text(
                     'See all',
                     style: GoogleFonts.poppins(
