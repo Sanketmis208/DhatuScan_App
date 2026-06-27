@@ -185,8 +185,8 @@ class AppTheme {
     );
   }
 
-  static CardTheme _buildCardTheme() {
-    return CardTheme(
+  static CardThemeData _buildCardTheme() {
+    return CardThemeData(
       color: AppColors.cardBackground,
       elevation: 2,
       shadowColor: AppColors.shadowColor,

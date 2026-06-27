@@ -47,29 +47,49 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoggedIn => LocalStorageService.isLoggedIn;
   UserCredential? get userCredential => _userCredential;
 
-  // Send OTP
+  // Send OTP — also concurrently checks whether the user is new via the backend.
   Future<void> sendOtp(String phone) async {
     _state = AuthState.sendingOtp;
     _phoneNumber = phone;
     _errorMessage = null;
     notifyListeners();
 
-    await _authService.sendOtp(
-      phoneNumber: phone,
-      onCodeSent: (verificationId, resendToken) {
-        _verificationId = verificationId;
-        _state = AuthState.otpSent;
-        notifyListeners();
-      },
-      onVerificationFailed: (error) {
-        _errorMessage = _mapFirebaseError(error);
-        _state = AuthState.error;
-        notifyListeners();
-      },
-      onAutoVerify: (credential) async {
-        await _signInWithCredential(credential);
-      },
-    );
+    // Run the Firebase OTP request and the backend user-existence check in
+    // parallel so the UI can start the OTP countdown immediately while the
+    // backend responds.
+    await Future.wait([
+      _authService.sendOtp(
+        phoneNumber: phone,
+        onCodeSent: (verificationId, resendToken) {
+          _verificationId = verificationId;
+          _state = AuthState.otpSent;
+          notifyListeners();
+        },
+        onVerificationFailed: (error) {
+          _errorMessage = _mapFirebaseError(error);
+          _state = AuthState.error;
+          notifyListeners();
+        },
+        onAutoVerify: (credential) async {
+          await _signInWithCredential(credential);
+        },
+      ),
+      _checkUserEarly(phone),
+    ]);
+  }
+
+  /// Calls [ApiService.checkUser] with the phone number only (no Firebase UID
+  /// yet) to determine whether the user is new or returning. The result is
+  /// stored in [_isNewUser] so it is available immediately after OTP
+  /// verification without a second round-trip.
+  Future<void> _checkUserEarly(String phone) async {
+    try {
+      final result = await _apiService.checkUser(phone);
+      _isNewUser = result['isNewUser'] as bool? ?? false;
+    } catch (_) {
+      // Silently ignore — the backend check is best-effort here. The result
+      // will be updated again in _postVerification after the OTP is verified.
+    }
   }
 
   // Resend OTP

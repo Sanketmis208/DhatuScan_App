@@ -1,10 +1,10 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import '../core/navigation/navigator_key.dart';
 import '../core/utils/api_exception.dart';
-import 'local_storage_service.dart';
 import 'api_service_interface.dart';
+import 'local_storage_service.dart';
 
 /// Singleton HTTP client wrapper built on [Dio].
 ///
@@ -51,7 +51,6 @@ class ApiService implements ApiServiceInterface {
   /// Throws [ApiException] with statusCode 0 when the device is offline.
   static Future<void> _assertConnected() async {
     final result = await Connectivity().checkConnectivity();
-    // connectivity_plus 5.x returns a single ConnectivityResult.
     if (result == ConnectivityResult.none) {
       throw const ApiException(
         statusCode: 0,
@@ -100,6 +99,7 @@ class ApiService implements ApiServiceInterface {
   /// `POST /auth/check-user` — unauthenticated endpoint.
   ///
   /// Returns `{ token, userId, isNewUser }`.
+  @override
   Future<Map<String, dynamic>> checkUser(
     String phone, {
     String? firebaseUid,
@@ -119,6 +119,7 @@ class ApiService implements ApiServiceInterface {
   // ── User Profile ──────────────────────────────────────────────────────────
 
   /// `POST /user/profile` — requires Bearer token.
+  @override
   Future<Map<String, dynamic>> saveProfile(
     Map<String, dynamic> profileData,
   ) async {
@@ -135,6 +136,7 @@ class ApiService implements ApiServiceInterface {
   }
 
   /// `GET /user/profile/:id` — requires Bearer token.
+  @override
   Future<Map<String, dynamic>> getProfile(String userId) async {
     await _assertConnected();
     try {
@@ -148,6 +150,7 @@ class ApiService implements ApiServiceInterface {
   // ── Assessment ────────────────────────────────────────────────────────────
 
   /// `POST /assessment/submit` — requires Bearer token.
+  @override
   Future<Map<String, dynamic>> submitAssessment(
     Map<String, dynamic> assessmentData,
   ) async {
@@ -164,6 +167,7 @@ class ApiService implements ApiServiceInterface {
   }
 
   /// `GET /assessment/history/:userId` — requires Bearer token.
+  @override
   Future<Map<String, dynamic>> getAssessmentHistory(String userId) async {
     await _assertConnected();
     try {
@@ -175,6 +179,7 @@ class ApiService implements ApiServiceInterface {
   }
 
   /// `GET /assessment/:id` — requires Bearer token.
+  @override
   Future<Map<String, dynamic>> getAssessment(String assessmentId) async {
     await _assertConnected();
     try {

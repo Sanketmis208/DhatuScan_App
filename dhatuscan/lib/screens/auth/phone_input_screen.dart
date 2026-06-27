@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_routes.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/phone_validator.dart';
 import '../../providers/auth_provider.dart';
@@ -74,7 +75,10 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
 
     final phone = _phoneController.text.trim();
     final authProvider = context.read<AuthProvider>();
-    await authProvider.sendOtp('+91$phone');
+    // Call sendOtp with just the 10-digit phone number.
+    // AuthService itself handles prepending "+91" for Firebase SMS,
+    // and the backend expects exactly 10 digits.
+    await authProvider.sendOtp(phone);
   }
 
   /// Listens to [AuthProvider] state changes and performs side-effects
@@ -88,7 +92,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
           if (!mounted) return;
           Navigator.pushNamed(
             context,
-            '/otp',
+            AppRoutes.otpVerify,
             arguments: authProvider.verificationId,
           );
         });

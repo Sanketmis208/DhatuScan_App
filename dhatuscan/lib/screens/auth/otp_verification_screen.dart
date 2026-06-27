@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_routes.dart';
 import '../../core/constants/app_strings.dart';
 import '../../providers/auth_provider.dart';
 
@@ -157,13 +159,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           if (authProvider.isNewUser) {
             Navigator.pushNamedAndRemoveUntil(
               context,
-              '/profile/new',
+              AppRoutes.personalDetails,
               (route) => false,
             );
           } else {
             Navigator.pushNamedAndRemoveUntil(
               context,
-              '/dashboard',
+              AppRoutes.dashboard,
               (route) => false,
             );
           }
@@ -202,8 +204,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         break;
     }
   }
-
-  // ── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -280,6 +280,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     // Strip leading +91 for display if present.
     final displayPhone =
         phone.startsWith('+91') ? phone.substring(3) : phone;
+    // Mask phone number: e.g. XXXXXX1234
+    final maskedPhone = displayPhone.length >= 10
+        ? 'XXXXXX${displayPhone.substring(displayPhone.length - 4)}'
+        : displayPhone;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
@@ -313,7 +317,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            '${AppStrings.otpVerificationSubtitle} +91$displayPhone',
+            '${AppStrings.otpVerificationSubtitle} +91 $maskedPhone',
             style: GoogleFonts.lato(
               fontSize: 14,
               color: Colors.white.withValues(alpha: 0.85),
