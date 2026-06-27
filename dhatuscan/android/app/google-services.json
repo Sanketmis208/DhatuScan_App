@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "553622699540",
+    "project_id": "dhatuscan-d63ab",
+    "storage_bucket": "dhatuscan-d63ab.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:553622699540:android:114ce908a00fc492a63101",
+        "android_client_info": {
+          "package_name": "com.dhatuscan.dhatuscan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfEKsf0oonFintAn2jtkK5GkbUkkIB2tI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

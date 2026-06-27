@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyBSL4p_MHQnT4-45TjUswQ8whdWT2kxidk</string>
+	<key>GCM_SENDER_ID</key>
+	<string>553622699540</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.dhatuscan.dhatuscan</string>
+	<key>PROJECT_ID</key>
+	<string>dhatuscan-d63ab</string>
+	<key>STORAGE_BUCKET</key>
+	<string>dhatuscan-d63ab.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:553622699540:ios:4603ab4c5b82ebbfa63101</string>
+</dict>
+</plist>
