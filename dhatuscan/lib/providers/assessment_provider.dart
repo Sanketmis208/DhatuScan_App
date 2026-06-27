@@ -83,8 +83,8 @@ class AssessmentProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void finishSection1() {
-    vkResults = ScoreCalculator.calculateVriddhiKshaya(vkAnswers);
+  void finishSection1({String? gender}) {
+    vkResults = ScoreCalculator.calculateVriddhiKshaya(vkAnswers, gender: gender);
     balanceStatus = ScoreCalculator.calculateBalanceStatus(vkResults);
     section1Complete = true;
     notifyListeners();
@@ -162,6 +162,25 @@ class AssessmentProvider extends ChangeNotifier {
 
   void clearError() {
     errorMessage = null;
+    notifyListeners();
+  }
+
+  void reset() {
+    vkAnswers = {};
+    currentDhatuIndex = 0;
+    currentSubsection = 'vriddhi';
+    section1Complete = false;
+    vkResults = [];
+    balanceStatus = '';
+
+    sarataSelections = {};
+    currentSarataIndex = 0;
+    section2Complete = false;
+    sarataResult = null;
+
+    errorMessage = null;
+
+    LocalStorageService.clearAssessmentProgress();
     notifyListeners();
   }
 }

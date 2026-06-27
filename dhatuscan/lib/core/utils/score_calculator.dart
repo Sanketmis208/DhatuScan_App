@@ -15,23 +15,29 @@ class ScoreCalculator {
 
   static const int sarataMaxScore = 126;
 
+  static double _roundTo1Dp(double val) {
+    return (val * 10).roundToDouble() / 10.0;
+  }
+
   // Calculate Vriddhi-Kshaya results for each dhatu
   static List<DhatuVKResult> calculateVriddhiKshaya(
-      Map<String, DhatuVKAnswers> answers) {
+      Map<String, DhatuVKAnswers> answers, {String? gender}) {
     List<DhatuVKResult> results = [];
 
     for (final dhatu in vkMaxScores.keys) {
       final dhatuAnswers = answers[dhatu];
-      if (dhatuAnswers == null) continue;
 
       final vMax = vkMaxScores[dhatu]!['vriddhi']!;
-      final kMax = vkMaxScores[dhatu]!['kshaya']!;
+      var kMax = vkMaxScores[dhatu]!['kshaya']!;
+      if (dhatu == 'Shukra' && gender != 'Male') {
+        kMax = 6;
+      }
 
-      final vScore = dhatuAnswers.vriddhiScore;
-      final kScore = dhatuAnswers.kshayaScore;
+      final vScore = dhatuAnswers?.vriddhiScore ?? 0;
+      final kScore = dhatuAnswers?.kshayaScore ?? 0;
 
-      final vPercent = vMax > 0 ? (vScore / vMax) * 100 : 0.0;
-      final kPercent = kMax > 0 ? (kScore / kMax) * 100 : 0.0;
+      final vPercent = vMax > 0 ? _roundTo1Dp((vScore / vMax) * 100) : 0.0;
+      final kPercent = kMax > 0 ? _roundTo1Dp((kScore / kMax) * 100) : 0.0;
 
       results.add(DhatuVKResult(
         dhatu: dhatu,
@@ -51,9 +57,9 @@ class ScoreCalculator {
   }
 
   static String _getVKStatus(double percent) {
-    if (percent < 40) return 'No Significant Change';
-    if (percent < 60) return 'Mild';
-    if (percent < 80) return 'Moderate';
+    if (percent < 40.0) return 'No Significant Change';
+    if (percent < 60.0) return 'Mild';
+    if (percent < 80.0) return 'Moderate';
     return 'Severe';
   }
 
@@ -66,7 +72,7 @@ class ScoreCalculator {
   // Calculate Sarata results
   static SarataResult calculateSarata(Map<String, double> sarataScores) {
     final total = sarataScores.values.fold(0.0, (a, b) => a + b);
-    final healthIndex = (total / sarataMaxScore) * 100;
+    final healthIndex = _roundTo1Dp((total / sarataMaxScore) * 100);
 
     // Sort saratas by score descending
     final sorted = sarataScores.entries.toList()
@@ -84,17 +90,19 @@ class ScoreCalculator {
   }
 
   static String _getHealthGrade(double healthIndex) {
-    if (healthIndex <= 40) return 'Poor';
-    if (healthIndex <= 60) return 'Fair';
-    if (healthIndex <= 80) return 'Good';
+    if (healthIndex <= 40.0) return 'Poor';
+    if (healthIndex <= 60.0) return 'Fair';
+    if (healthIndex <= 80.0) return 'Good';
     return 'Excellent';
   }
 
   // Calculate overall balance status
   static String calculateBalanceStatus(List<DhatuVKResult> vkResults) {
-    int affectedCount = vkResults.where((r) =>
-        r.vriddhiStatus != 'No Significant Change' ||
-        r.kshayaStatus != 'No Significant Change').length;
+    int affectedCount = 0;
+    for (final r in vkResults) {
+      if (r.vriddhiStatus != 'No Significant Change') affectedCount++;
+      if (r.kshayaStatus != 'No Significant Change') affectedCount++;
+    }
 
     if (affectedCount == 0) return 'Sama Dhatu (Well Balanced)';
     if (affectedCount <= 2) return 'Mild Imbalance';
