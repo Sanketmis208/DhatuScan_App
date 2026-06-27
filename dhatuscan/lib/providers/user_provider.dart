@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 import '../services/local_storage_service.dart';
+import '../core/utils/api_exception.dart';
 
 class UserProvider extends ChangeNotifier {
   final ApiService _apiService = ApiService();
@@ -79,7 +80,11 @@ class UserProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _isLoading = false;
-      _errorMessage = 'Failed to save profile. Please try again.';
+      if (e is ApiException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'Failed to save profile. Please try again.';
+      }
       notifyListeners();
       return false;
     }

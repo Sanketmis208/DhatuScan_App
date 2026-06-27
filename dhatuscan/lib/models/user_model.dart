@@ -75,7 +75,7 @@ class UserModel {
       if (id != null) 'id': id,
       'phone': phone,
       if (name != null) 'name': name,
-      if (dateOfBirth != null) 'dateOfBirth': dateOfBirth!.toIso8601String(),
+      if (dateOfBirth != null) 'dateOfBirth': dateOfBirth!.toUtc().toIso8601String(),
       if (age != null) 'age': age,
       if (gender != null) 'gender': gender,
       if (address != null) 'address': address,
