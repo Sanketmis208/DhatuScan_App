@@ -111,6 +111,14 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.dispose();
   }
 
+  void _startAssessment() {
+    final provider = context.read<AssessmentProvider>();
+    if (provider.section1Complete && provider.section2Complete) {
+      provider.reset();
+    }
+    Navigator.of(context).pushNamed(AppRoutes.assessment);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,8 +137,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       floatingActionButton: _loading
           ? null
           : FloatingActionButton.extended(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(AppRoutes.assessment),
+              onPressed: _startAssessment,
               backgroundColor: AppColors.accent,
               icon: const Icon(Icons.add_chart_outlined, color: Colors.white),
               label: Text(
@@ -211,8 +218,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           _HealthScoreCard(result: latest)
         else
           _NoAssessmentCard(
-            onStartTap: () =>
-                Navigator.of(context).pushNamed(AppRoutes.assessment),
+            onStartTap: _startAssessment,
           ),
 
         const SizedBox(height: 24),
@@ -227,8 +233,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 icon: Icons.assignment_outlined,
                 label: 'Start\nAssessment',
                 color: AppColors.primary,
-                onTap: () =>
-                    Navigator.of(context).pushNamed(AppRoutes.assessment),
+                onTap: _startAssessment,
               ),
             ),
             const SizedBox(width: 12),
@@ -238,11 +243,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 label: 'View\nHistory',
                 color: const Color(0xFF7E57C2),
                 onTap: () {
-                  _scrollController.animateTo(
-                    _scrollController.position.maxScrollExtent,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                  );
+                  Navigator.of(context).pushNamed(AppRoutes.history);
                 },
               ),
             ),
@@ -286,11 +287,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               ? null
               : TextButton(
                   onPressed: () {
-                    _scrollController.animateTo(
-                      _scrollController.position.maxScrollExtent,
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeInOut,
-                    );
+                    Navigator.of(context).pushNamed(AppRoutes.history);
                   },
                   child: Text(
                     'See all',

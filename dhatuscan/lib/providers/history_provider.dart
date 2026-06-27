@@ -51,7 +51,12 @@ class HistoryProvider extends ChangeNotifier {
 
     try {
       final data = await ApiService().getAssessment(assessmentId);
-      _currentDetail = AssessmentResult.fromJson(data);
+      final assessmentJson = data['assessment'] as Map<String, dynamic>?;
+      if (assessmentJson != null) {
+        _currentDetail = AssessmentResult.fromJson(assessmentJson);
+      } else {
+        _currentDetail = null;
+      }
       _isLoading = false;
       notifyListeners();
       return true;

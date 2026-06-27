@@ -14,6 +14,7 @@ import 'screens/onboarding/personal_details_screen.dart';
 import 'screens/recommendations/recommendations_screen.dart';
 import 'screens/result/result_screen.dart';
 import 'screens/splash/splash_screen.dart';
+import 'screens/dashboard/history_screen.dart';
 
 class DhatuScanApp extends StatelessWidget {
   const DhatuScanApp({super.key});
@@ -40,6 +41,7 @@ class DhatuScanApp extends StatelessWidget {
 
         // ── Main ────────────────────────────────────────────────────────────
         AppRoutes.dashboard:       (_) => const DashboardScreen(),
+        AppRoutes.history:         (_) => const HistoryScreen(),
 
         // ── Assessment ──────────────────────────────────────────────────────
         AppRoutes.assessmentHome:  (_) => const AssessmentHomeScreen(),
