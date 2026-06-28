@@ -6,12 +6,12 @@ import { signToken } from '../../src/utils/jwt.js';
 // ── Users ────────────────────────────────────────────────────────────────────
 
 export const USER_ID   = 'user-uuid-1234';
-export const USER_PHONE = '9876543210';
+export const USER_EMAIL = 'arjun@example.com';
 
 export const sampleUser = {
   id:               USER_ID,
-  firebaseUid:      'firebase-uid-abc',
-  phone:            USER_PHONE,
+  googleId:         'google-mock-idToken',
+  email:            USER_EMAIL,
   name:             'Arjun Sharma',
   dateOfBirth:      new Date('1990-06-15'),
   age:              34,

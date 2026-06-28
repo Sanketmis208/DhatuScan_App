@@ -220,27 +220,27 @@ class ApiService {
 
 ### UserModel
 
-| Field | Type | Notes |
-|-------|------|-------|
-| `id` | `String?` | PostgreSQL UUID, null before profile save |
-| `firebaseUid` | `String?` | Firebase UID |
-| `phone` | `String` | E.164 without country code, e.g. `9876543210` |
-| `name` | `String?` | Full name |
-| `dateOfBirth` | `DateTime?` | ISO 8601 |
-| `age` | `int?` | Auto-computed from DOB |
-| `gender` | `String?` | `"Male"` \| `"Female"` \| `"Other"` |
-| `height` | `double?` | cm |
-| `weight` | `double?` | kg |
-| `bmi` | `double?` | Computed: `weight / (height_m)²`, 1 dp |
-| `bp` | `String?` | `"120/80"` format |
-| `pulseRate` | `int?` | bpm |
-| `medicalHistory` | `String?` | Free text or comma-separated |
-| `occupation` | `String?` | |
-| `physicalActivity` | `String?` | `"Sedentary"` \| `"Moderate"` \| `"Active"` |
-| `sleepDuration` | `String?` | e.g. `"7-8 hours"` |
-| `appetitePattern` | `String?` | |
-| `waterIntake` | `String?` | |
-| `isProfileComplete` | `bool` | Set to `true` after first profile save |
+| Field               | Type        | Notes                                         |
+| ------------------- | ----------- | --------------------------------------------- |
+| `id`                | `String?`   | PostgreSQL UUID, null before profile save     |
+| `firebaseUid`       | `String?`   | Firebase UID                                  |
+| `phone`             | `String`    | E.164 without country code, e.g. `9876543210` |
+| `name`              | `String?`   | Full name                                     |
+| `dateOfBirth`       | `DateTime?` | ISO 8601                                      |
+| `age`               | `int?`      | Auto-computed from DOB                        |
+| `gender`            | `String?`   | `"Male"` \| `"Female"` \| `"Other"`           |
+| `height`            | `double?`   | cm                                            |
+| `weight`            | `double?`   | kg                                            |
+| `bmi`               | `double?`   | Computed: `weight / (height_m)²`, 1 dp        |
+| `bp`                | `String?`   | `"120/80"` format                             |
+| `pulseRate`         | `int?`      | bpm                                           |
+| `medicalHistory`    | `String?`   | Free text or comma-separated                  |
+| `occupation`        | `String?`   |                                               |
+| `physicalActivity`  | `String?`   | `"Sedentary"` \| `"Moderate"` \| `"Active"`   |
+| `sleepDuration`     | `String?`   | e.g. `"7-8 hours"`                            |
+| `appetitePattern`   | `String?`   |                                               |
+| `waterIntake`       | `String?`   |                                               |
+| `isProfileComplete` | `bool`      | Set to `true` after first profile save        |
 
 ### AssessmentModel
 
@@ -263,39 +263,39 @@ class DhatuVKAnswers {
 
 **DhatuVKResult** — computed per-Dhatu result:
 
-| Field | Type |
-|-------|------|
-| `dhatu` | `String` |
-| `vriddhiScore` / `kshayaScore` | `int` |
-| `vriddhiMax` / `kshayaMax` | `int` |
-| `vriddhiPercent` / `kshayaPercent` | `double` |
-| `vriddhiStatus` / `kshayaStatus` | `String` |
-| `dominant` | `"Vriddhi"` \| `"Kshaya"` \| `"Balanced"` |
+| Field                              | Type                                      |
+| ---------------------------------- | ----------------------------------------- |
+| `dhatu`                            | `String`                                  |
+| `vriddhiScore` / `kshayaScore`     | `int`                                     |
+| `vriddhiMax` / `kshayaMax`         | `int`                                     |
+| `vriddhiPercent` / `kshayaPercent` | `double`                                  |
+| `vriddhiStatus` / `kshayaStatus`   | `String`                                  |
+| `dominant`                         | `"Vriddhi"` \| `"Kshaya"` \| `"Balanced"` |
 
 **SarataResult**:
 
-| Field | Type |
-|-------|------|
-| `scores` | `Map<String, double>` — per-Sara percentage |
-| `totalScore` | `double` |
-| `healthIndex` | `double` — 0–100 |
-| `healthGrade` | `"Poor"` \| `"Fair"` \| `"Good"` \| `"Excellent"` |
-| `dominantSara` / `secondarySara` / `weakestSara` | `String` |
+| Field                                            | Type                                              |
+| ------------------------------------------------ | ------------------------------------------------- |
+| `scores`                                         | `Map<String, double>` — per-Sara percentage       |
+| `totalScore`                                     | `double`                                          |
+| `healthIndex`                                    | `double` — 0–100                                  |
+| `healthGrade`                                    | `"Poor"` \| `"Fair"` \| `"Good"` \| `"Excellent"` |
+| `dominantSara` / `secondarySara` / `weakestSara` | `String`                                          |
 
 **AssessmentResult** — full assessment record stored in backend and cached locally:
 
-| Field | Type |
-|-------|------|
-| `id` | `String?` — backend UUID |
-| `userId` | `String` |
-| `assessmentDate` | `DateTime` |
-| `vkResults` | `List<DhatuVKResult>` |
-| `sarataResult` | `SarataResult` |
-| `healthIndex` | `double` |
-| `healthGrade` | `String` |
-| `dominantSara` / `secondarySara` / `weakestSara` | `String` |
-| `predominantKshaya` / `predominantVriddhi` | `String` |
-| `balanceStatus` | `String` |
+| Field                                            | Type                     |
+| ------------------------------------------------ | ------------------------ |
+| `id`                                             | `String?` — backend UUID |
+| `userId`                                         | `String`                 |
+| `assessmentDate`                                 | `DateTime`               |
+| `vkResults`                                      | `List<DhatuVKResult>`    |
+| `sarataResult`                                   | `SarataResult`           |
+| `healthIndex`                                    | `double`                 |
+| `healthGrade`                                    | `String`                 |
+| `dominantSara` / `secondarySara` / `weakestSara` | `String`                 |
+| `predominantKshaya` / `predominantVriddhi`       | `String`                 |
+| `balanceStatus`                                  | `String`                 |
 
 ---
 
@@ -327,6 +327,7 @@ SplashScreen
 ```
 
 **Back-navigation rules:**
+
 - Splash → no back
 - OTP → back to PhoneInput
 - PersonalDetails → no back (prevent OTP bypass)
@@ -359,14 +360,14 @@ class AppRoutes {
 
 ### Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Runtime | Node.js 18+ |
-| Framework | Express 4 |
-| ORM | Prisma 5 |
-| Database | PostgreSQL 15 |
-| Auth | Firebase Admin SDK (token verification) + `jsonwebtoken` |
-| Validation | `zod` |
+| Layer      | Technology                                               |
+| ---------- | -------------------------------------------------------- |
+| Runtime    | Node.js 18+                                              |
+| Framework  | Express 4                                                |
+| ORM        | Prisma 5                                                 |
+| Database   | PostgreSQL 15                                            |
+| Auth       | Firebase Admin SDK (token verification) + `jsonwebtoken` |
+| Validation | `zod`                                                    |
 
 ### Project Structure
 
@@ -398,28 +399,29 @@ backend/
 
 ### Express Routes
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/auth/check-user` | No | Check if phone exists; return JWT + userId + isNewUser |
-| POST | `/api/user/profile` | Bearer | Create or update user profile |
-| GET | `/api/user/profile/:id` | Bearer | Fetch user profile by ID |
-| POST | `/api/assessment/submit` | Bearer | Save completed assessment |
-| GET | `/api/assessment/history/:userId` | Bearer | List past assessments for user |
-| GET | `/api/assessment/:id` | Bearer | Fetch single assessment by ID |
+| Method | Path                              | Auth   | Description                                            |
+| ------ | --------------------------------- | ------ | ------------------------------------------------------ |
+| POST   | `/api/auth/check-user`            | No     | Check if phone exists; return JWT + userId + isNewUser |
+| POST   | `/api/user/profile`               | Bearer | Create or update user profile                          |
+| GET    | `/api/user/profile/:id`           | Bearer | Fetch user profile by ID                               |
+| POST   | `/api/assessment/submit`          | Bearer | Save completed assessment                              |
+| GET    | `/api/assessment/history/:userId` | Bearer | List past assessments for user                         |
+| GET    | `/api/assessment/:id`             | Bearer | Fetch single assessment by ID                          |
 
 ### JWT Auth Middleware
 
 ```js
 // middleware/auth.js
 export function verifyJWT(req, res, next) {
-  const header = req.headers['authorization'];
-  if (!header?.startsWith('Bearer ')) return res.status(401).json({ message: 'No token' });
+  const header = req.headers["authorization"];
+  if (!header?.startsWith("Bearer "))
+    return res.status(401).json({ message: "No token" });
   try {
     const payload = jwt.verify(header.slice(7), process.env.JWT_SECRET);
     req.userId = payload.userId;
     next();
   } catch {
-    return res.status(401).json({ message: 'Invalid or expired token' });
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 }
 ```
@@ -499,17 +501,17 @@ Rounded to 1 decimal place. Always in range [0.0, 100.0].
 
 Max scores per Dhatu dimension (hardcoded):
 
-| Dhatu | Vriddhi Max | Kshaya Max (male) | Kshaya Max (non-male) |
-|-------|------------|-------------------|----------------------|
-| Rasa | 21 | 18 | 18 |
-| Rakta | 36 | 12 | 12 |
-| Mamsa | 15 | 9 | 9 |
-| Meda | 15 | 9 | 9 |
-| Asthi | 6 | 12 | 12 |
-| Majja | 9 | 9 | 9 |
-| Shukra | 6 | 15 | 6* |
+| Dhatu  | Vriddhi Max | Kshaya Max (male) | Kshaya Max (non-male) |
+| ------ | ----------- | ----------------- | --------------------- |
+| Rasa   | 21          | 18                | 18                    |
+| Rakta  | 36          | 12                | 12                    |
+| Mamsa  | 15          | 9                 | 9                     |
+| Meda   | 15          | 9                 | 9                     |
+| Asthi  | 6           | 12                | 12                    |
+| Majja  | 9           | 9                 | 9                     |
+| Shukra | 6           | 15                | 6\*                   |
 
-*Non-male Shukra Kshaya: 3 male-only questions removed (max 9 pts deducted → 15 − 9 = 6).
+\*Non-male Shukra Kshaya: 3 male-only questions removed (max 9 pts deducted → 15 − 9 = 6).
 
 ### Imbalance Status Threshold
 
@@ -600,22 +602,22 @@ The Recommendations screen calls `getRecommendation(dhatu, 'Vriddhi')` and/or `g
 
 ### Table Keys (14 entries)
 
-| # | Dhatu | Condition |
-|---|-------|-----------|
-| 1 | Rasa | Vriddhi |
-| 2 | Rasa | Kshaya |
-| 3 | Rakta | Vriddhi |
-| 4 | Rakta | Kshaya |
-| 5 | Mamsa | Vriddhi |
-| 6 | Mamsa | Kshaya |
-| 7 | Meda | Vriddhi |
-| 8 | Meda | Kshaya |
-| 9 | Asthi | Vriddhi |
-| 10 | Asthi | Kshaya |
-| 11 | Majja | Vriddhi |
-| 12 | Majja | Kshaya |
-| 13 | Shukra | Vriddhi |
-| 14 | Shukra | Kshaya |
+| #   | Dhatu  | Condition |
+| --- | ------ | --------- |
+| 1   | Rasa   | Vriddhi   |
+| 2   | Rasa   | Kshaya    |
+| 3   | Rakta  | Vriddhi   |
+| 4   | Rakta  | Kshaya    |
+| 5   | Mamsa  | Vriddhi   |
+| 6   | Mamsa  | Kshaya    |
+| 7   | Meda   | Vriddhi   |
+| 8   | Meda   | Kshaya    |
+| 9   | Asthi  | Vriddhi   |
+| 10  | Asthi  | Kshaya    |
+| 11  | Majja  | Vriddhi   |
+| 12  | Majja  | Kshaya    |
+| 13  | Shukra | Vriddhi   |
+| 14  | Shukra | Kshaya    |
 
 ---
 
@@ -625,14 +627,14 @@ All persistence goes through `LocalStorageService`, which wraps `SharedPreferenc
 
 ### SharedPreferences Key Schema
 
-| Key | Type | Description |
-|-----|------|-------------|
-| `isLoggedIn` | `bool` | True while JWT is active |
-| `authToken` | `String` | JWT bearer token |
-| `userId` | `String` | Backend user UUID |
-| `userData` | `String` (JSON) | Serialised `UserModel.toJson()` |
-| `vkAnswers` | `String` (JSON) | Section 1 progress (see below) |
-| `sarataAnswers` | `String` (JSON) | Section 2 progress (see below) |
+| Key             | Type            | Description                     |
+| --------------- | --------------- | ------------------------------- |
+| `isLoggedIn`    | `bool`          | True while JWT is active        |
+| `authToken`     | `String`        | JWT bearer token                |
+| `userId`        | `String`        | Backend user UUID               |
+| `userData`      | `String` (JSON) | Serialised `UserModel.toJson()` |
+| `vkAnswers`     | `String` (JSON) | Section 1 progress (see below)  |
+| `sarataAnswers` | `String` (JSON) | Section 2 progress (see below)  |
 
 ### Section 1 JSON Schema (`vkAnswers`)
 
@@ -643,7 +645,7 @@ All persistence goes through `LocalStorageService`, which wraps `SharedPreferenc
   "answers": {
     "Rasa": {
       "vriddhi": { "Excessive Salivation": 1, "Loss of Appetite": 2 },
-      "kshaya":  { "Dryness": 0 }
+      "kshaya": { "Dryness": 0 }
     },
     "Rakta": { "vriddhi": {}, "kshaya": {} }
   }
@@ -684,22 +686,22 @@ All persistence goes through `LocalStorageService`, which wraps `SharedPreferenc
 
 ## Key Flutter Packages
 
-| Package | Version | Role |
-|---------|---------|------|
-| `provider` | ^6.1.1 | State management — `ChangeNotifier` / `MultiProvider` / `Consumer` |
-| `firebase_core` | ^2.27.0 | Firebase SDK initialisation |
-| `firebase_auth` | ^4.17.0 | Phone OTP: `verifyPhoneNumber`, `signInWithCredential` |
-| `dio` | ^5.4.0 | HTTP client with interceptors for JWT attachment and 401 handling |
-| `shared_preferences` | ^2.2.2 | Local key-value storage for JWT, user data, assessment progress |
-| `google_fonts` | ^6.1.0 | Poppins (headlines) and Lato (body) font loading |
-| `pinput` | ^3.0.1 | Styled 6-digit OTP input widget |
-| `fl_chart` | ^0.66.2 | Bar charts for VK_Percent visualisation on Result screen |
-| `shimmer` | ^3.0.0 | Loading placeholders on Dashboard and Result screens |
-| `lottie` | ^3.0.0 | Splash screen and transition animations |
-| `fluttertoast` | ^8.2.4 | Toast notifications for errors and success messages |
-| `intl` | ^0.18.1 | Date formatting (DOB display, assessment date) |
-| `connectivity_plus` | ^5.0.2 | Network connectivity check before API calls |
-| `flutter_svg` | ^2.0.9 | SVG asset rendering if logo is in SVG format |
+| Package              | Version | Role                                                               |
+| -------------------- | ------- | ------------------------------------------------------------------ |
+| `provider`           | ^6.1.1  | State management — `ChangeNotifier` / `MultiProvider` / `Consumer` |
+| `firebase_core`      | ^2.27.0 | Firebase SDK initialisation                                        |
+| `firebase_auth`      | ^4.17.0 | Phone OTP: `verifyPhoneNumber`, `signInWithCredential`             |
+| `dio`                | ^5.4.0  | HTTP client with interceptors for JWT attachment and 401 handling  |
+| `shared_preferences` | ^2.2.2  | Local key-value storage for JWT, user data, assessment progress    |
+| `google_fonts`       | ^6.1.0  | Poppins (headlines) and Lato (body) font loading                   |
+| `pinput`             | ^3.0.1  | Styled 6-digit OTP input widget                                    |
+| `fl_chart`           | ^0.66.2 | Bar charts for VK_Percent visualisation on Result screen           |
+| `shimmer`            | ^3.0.0  | Loading placeholders on Dashboard and Result screens               |
+| `lottie`             | ^3.0.0  | Splash screen and transition animations                            |
+| `fluttertoast`       | ^8.2.4  | Toast notifications for errors and success messages                |
+| `intl`               | ^0.18.1 | Date formatting (DOB display, assessment date)                     |
+| `connectivity_plus`  | ^5.0.2  | Network connectivity check before API calls                        |
+| `flutter_svg`        | ^2.0.9  | SVG asset rendering if logo is in SVG format                       |
 
 **Note on `http` vs `dio`:** The existing `api_service.dart` uses `http`, but `pubspec.yaml` also declares `dio`. The design calls for migrating `ApiService` fully to `dio` to leverage interceptors for JWT attachment and unified 401 handling. The `http` package can be removed once the migration is complete.
 
@@ -720,11 +722,11 @@ Hindi text widgets use `TextStyle(fontFamily: 'NotoSansDevanagari')` explicitly.
 
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+_A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees._
 
 ### Property 1: Phone input validation
 
-*For any* string input to the phone field, the validation function SHALL accept it if and only if it consists of exactly 10 ASCII digit characters (matching `/^\d{10}$/`). Any string shorter, longer, or containing non-digits SHALL be rejected.
+_For any_ string input to the phone field, the validation function SHALL accept it if and only if it consists of exactly 10 ASCII digit characters (matching `/^\d{10}$/`). Any string shorter, longer, or containing non-digits SHALL be rejected.
 
 **Validates: Requirements 3.1, 3.2, 3.3**
 
@@ -732,7 +734,7 @@ Hindi text widgets use `TextStyle(fontFamily: 'NotoSansDevanagari')` explicitly.
 
 ### Property 2: BMI computation
 
-*For any* height value `h` in cm where `h > 0` and weight value `w` in kg where `w > 0`, the computed BMI SHALL equal `w / (h / 100)²` rounded to 1 decimal place, and the result SHALL be a positive finite number.
+_For any_ height value `h` in cm where `h > 0` and weight value `w` in kg where `w > 0`, the computed BMI SHALL equal `w / (h / 100)²` rounded to 1 decimal place, and the result SHALL be a positive finite number.
 
 **Validates: Requirements 5.3**
 
@@ -740,7 +742,7 @@ Hindi text widgets use `TextStyle(fontFamily: 'NotoSansDevanagari')` explicitly.
 
 ### Property 3: VK_Percent computation
 
-*For any* list of VK_Scores (each in `[0, 3]`) and the corresponding dimension max score `maxScore > 0`, the computed `VK_Percent` SHALL equal `(sum(scores) / maxScore) * 100` rounded to 1 decimal place, and the result SHALL always be in the range `[0.0, 100.0]`.
+_For any_ list of VK_Scores (each in `[0, 3]`) and the corresponding dimension max score `maxScore > 0`, the computed `VK_Percent` SHALL equal `(sum(scores) / maxScore) * 100` rounded to 1 decimal place, and the result SHALL always be in the range `[0.0, 100.0]`.
 
 **Validates: Requirements 9.1, 9.2**
 
@@ -748,7 +750,8 @@ Hindi text widgets use `TextStyle(fontFamily: 'NotoSansDevanagari')` explicitly.
 
 ### Property 4: Imbalance status threshold classification
 
-*For any* `VK_Percent` value `p` in `[0.0, 100.0]`, the assigned imbalance status SHALL satisfy:
+_For any_ `VK_Percent` value `p` in `[0.0, 100.0]`, the assigned imbalance status SHALL satisfy:
+
 - `p < 40.0` → `"No Significant Change"`
 - `40.0 ≤ p < 60.0` → `"Mild"`
 - `60.0 ≤ p < 80.0` → `"Moderate"`
@@ -762,7 +765,8 @@ Every possible value in `[0, 100]` SHALL map to exactly one status (no gaps or o
 
 ### Property 5: Balance_Status classification
 
-*For any* non-negative integer `affectedCount` representing the number of Dhatu dimensions outside "No Significant Change", the assigned `Balance_Status` SHALL satisfy:
+_For any_ non-negative integer `affectedCount` representing the number of Dhatu dimensions outside "No Significant Change", the assigned `Balance_Status` SHALL satisfy:
+
 - `affectedCount = 0` → `"Sama Dhatu (Well Balanced)"`
 - `1 ≤ affectedCount ≤ 2` → `"Mild Imbalance"`
 - `3 ≤ affectedCount ≤ 4` → `"Moderate Imbalance"`
@@ -774,7 +778,8 @@ Every possible value in `[0, 100]` SHALL map to exactly one status (no gaps or o
 
 ### Property 6: Health_Index computation and grade
 
-*For any* total Sarata score `s` in `[0, 126]`, the computed `Health_Index` SHALL equal `(s / 126) * 100` rounded to 1 decimal place and SHALL be in `[0.0, 100.0]`. The assigned grade SHALL satisfy:
+_For any_ total Sarata score `s` in `[0, 126]`, the computed `Health_Index` SHALL equal `(s / 126) * 100` rounded to 1 decimal place and SHALL be in `[0.0, 100.0]`. The assigned grade SHALL satisfy:
+
 - `Health_Index ≤ 40.0` → `"Poor"`
 - `40.0 < Health_Index ≤ 60.0` → `"Fair"`
 - `60.0 < Health_Index ≤ 80.0` → `"Good"`
@@ -786,7 +791,7 @@ Every possible value in `[0, 100]` SHALL map to exactly one status (no gaps or o
 
 ### Property 7: Recommendation table completeness
 
-*For any* `AffectedDhatu` in the list produced by `ScoreCalculator.getTopAffectedDhatus()`, calling `getRecommendation(dhatu, condition)` SHALL return a non-null `Recommendation` object with all five fields (`pathyaAahar`, `apathyaAahar`, `pathyaVihara`, `apathyaVihara`, `aushadha`) containing non-empty strings for every combination of the 7 Dhatu names and the two condition values `"Vriddhi"` and `"Kshaya"`.
+_For any_ `AffectedDhatu` in the list produced by `ScoreCalculator.getTopAffectedDhatus()`, calling `getRecommendation(dhatu, condition)` SHALL return a non-null `Recommendation` object with all five fields (`pathyaAahar`, `apathyaAahar`, `pathyaVihara`, `apathyaVihara`, `aushadha`) containing non-empty strings for every combination of the 7 Dhatu names and the two condition values `"Vriddhi"` and `"Kshaya"`.
 
 **Validates: Requirements 13.1, 13.2, 13.3**
 
@@ -794,7 +799,7 @@ Every possible value in `[0, 100]` SHALL map to exactly one status (no gaps or o
 
 ### Property 8: Assessment state serialization round-trip
 
-*For any* valid Section 1 progress state (a map of Dhatu names to `DhatuVKAnswers`) and Section 2 progress state (a map of Sara category names to item-selection maps), encoding the state to a JSON string via `jsonEncode` and then decoding it via `jsonDecode` SHALL produce a map structurally and value-equal to the original. No answer values SHALL be lost, mutated, or added during the round-trip.
+_For any_ valid Section 1 progress state (a map of Dhatu names to `DhatuVKAnswers`) and Section 2 progress state (a map of Sara category names to item-selection maps), encoding the state to a JSON string via `jsonEncode` and then decoding it via `jsonDecode` SHALL produce a map structurally and value-equal to the original. No answer values SHALL be lost, mutated, or added during the round-trip.
 
 **Validates: Requirements 15.3, 17.1, 17.2**
 
@@ -804,17 +809,17 @@ Every possible value in `[0, 100]` SHALL map to exactly one status (no gaps or o
 
 ### Client-side (Flutter)
 
-| Scenario | Behaviour |
-|----------|-----------|
-| Firebase OTP send failure | `AuthProvider._state = error`, `errorMessage` shown as toast |
-| Incorrect OTP | Inline error on Pinput field; user may re-enter |
-| OTP expired | Toast prompting resend; Resend button enabled |
-| API 401 | `LocalStorageService.logout()`, clear Providers, navigate to Landing |
-| API 4xx (non-401) | Toast with `error.message` from response body |
+| Scenario                          | Behaviour                                                             |
+| --------------------------------- | --------------------------------------------------------------------- |
+| Firebase OTP send failure         | `AuthProvider._state = error`, `errorMessage` shown as toast          |
+| Incorrect OTP                     | Inline error on Pinput field; user may re-enter                       |
+| OTP expired                       | Toast prompting resend; Resend button enabled                         |
+| API 401                           | `LocalStorageService.logout()`, clear Providers, navigate to Landing  |
+| API 4xx (non-401)                 | Toast with `error.message` from response body                         |
 | Network timeout / no connectivity | `connectivity_plus` check before call; toast "No internet connection" |
-| Profile save failure | Toast; stay on PersonalDetails screen |
-| Assessment submit failure | Toast; retain SharedPreferences state; show retry option |
-| Missing Lottie asset | Graceful fallback to static logo (null-safe asset loading) |
+| Profile save failure              | Toast; stay on PersonalDetails screen                                 |
+| Assessment submit failure         | Toast; retain SharedPreferences state; show retry option              |
+| Missing Lottie asset              | Graceful fallback to static logo (null-safe asset loading)            |
 
 ### Server-side (Node.js)
 
@@ -826,6 +831,7 @@ Every possible value in `[0, 100]` SHALL map to exactly one status (no gaps or o
 ### Offline Resilience
 
 The app is fully functional for assessment completion without internet. Network calls are only required for:
+
 1. OTP send/verify (Firebase — must be online)
 2. Profile fetch/save
 3. Assessment submit
@@ -853,16 +859,16 @@ Use the [`dart_check`](https://pub.dev/packages/dart_check) package (or `dart_qu
 
 Tag format per test: `// Feature: dhatu-scan-app, Property N: <property text>`
 
-| Test | Property | Generator |
-|------|----------|-----------|
-| `phoneValidation_acceptsOnlyTenDigits` | P1 | Arbitrary strings (alphanumeric, shorter/longer, special chars) |
-| `bmiComputation_isCorrectForAnyPositiveInput` | P2 | `(h: double 1–300, w: double 1–300)` |
-| `vkPercent_alwaysInRangeAndCorrectFormula` | P3 | `(scores: List<int 0–3>, max: int 1–36)` |
-| `imbalanceStatus_coverageNoBlanks` | P4 | `double 0–100` |
-| `balanceStatus_correctForAnyCount` | P5 | `int 0–14` |
-| `healthIndexAndGrade_correctForAnyScore` | P6 | `double 0–126` |
-| `recommendationTable_completeForAllDhatuConditions` | P7 | Enumerated — all 14 (dhatu, condition) pairs |
-| `assessmentState_jsonRoundTrip` | P8 | Arbitrary VK answer maps and Sarata selection maps |
+| Test                                                | Property | Generator                                                       |
+| --------------------------------------------------- | -------- | --------------------------------------------------------------- |
+| `phoneValidation_acceptsOnlyTenDigits`              | P1       | Arbitrary strings (alphanumeric, shorter/longer, special chars) |
+| `bmiComputation_isCorrectForAnyPositiveInput`       | P2       | `(h: double 1–300, w: double 1–300)`                            |
+| `vkPercent_alwaysInRangeAndCorrectFormula`          | P3       | `(scores: List<int 0–3>, max: int 1–36)`                        |
+| `imbalanceStatus_coverageNoBlanks`                  | P4       | `double 0–100`                                                  |
+| `balanceStatus_correctForAnyCount`                  | P5       | `int 0–14`                                                      |
+| `healthIndexAndGrade_correctForAnyScore`            | P6       | `double 0–126`                                                  |
+| `recommendationTable_completeForAllDhatuConditions` | P7       | Enumerated — all 14 (dhatu, condition) pairs                    |
+| `assessmentState_jsonRoundTrip`                     | P8       | Arbitrary VK answer maps and Sarata selection maps              |
 
 ### Integration Tests
 

@@ -19,6 +19,7 @@ export async function saveProfile(req, res, next) {
 
     const {
       name,
+      phone,
       dateOfBirth,
       age,
       gender,
@@ -40,6 +41,7 @@ export async function saveProfile(req, res, next) {
       where: { id: userId },
       data: {
         name: name ?? undefined,
+        phone: phone ?? undefined,
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
         age: age ?? undefined,
         gender: gender ?? undefined,

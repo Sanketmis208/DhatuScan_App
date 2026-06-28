@@ -17,6 +17,7 @@ router.use(verifyJWT);
 // (phone is already on the user record from check-user).
 const saveProfileSchema = z.object({
   name: z.string().min(1).optional(),
+  phone: z.string().optional(),
   dateOfBirth: z.string().datetime({ offset: true }).optional().or(
     z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional()
   ),
