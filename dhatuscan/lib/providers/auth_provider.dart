@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../services/auth_service_interface.dart';
@@ -69,6 +70,16 @@ class AuthProvider extends ChangeNotifier {
           debugPrint('Firebase Auth Error Code: ${error.code}');
           debugPrint('Firebase Auth Error Message: ${error.message}');
           debugPrint('Firebase Auth Error details: ${error.toString()}');
+
+          if (kDebugMode) {
+            debugPrint('Firebase Phone Auth failed. Falling back to local bypass / mock OTP mode for testing.');
+            _verificationId = 'mock-verification-id';
+            _state = AuthState.otpSent;
+            _errorMessage = null;
+            notifyListeners();
+            return;
+          }
+
           _errorMessage = _mapFirebaseError(error);
           _state = AuthState.error;
           notifyListeners();
