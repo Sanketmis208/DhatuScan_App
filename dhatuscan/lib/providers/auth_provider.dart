@@ -63,7 +63,9 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     } catch (e) {
-      _errorMessage = 'Sign Up failed: ${e.toString()}';
+      // Show the raw error message so we can diagnose the exact failure.
+      final rawMsg = e.toString().replaceFirst('Exception: ', '');
+      _errorMessage = rawMsg;
       _state = AuthState.error;
       notifyListeners();
       return false;
@@ -93,7 +95,9 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     } catch (e) {
-      _errorMessage = 'Login failed: ${e.toString()}';
+      // Show the raw error message so we can diagnose the exact failure.
+      final rawMsg = e.toString().replaceFirst('Exception: ', '');
+      _errorMessage = rawMsg;
       _state = AuthState.error;
       notifyListeners();
       return false;

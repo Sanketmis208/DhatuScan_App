@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "553622699540-hnp10iqr8dg1bgbmnbf9821dv12n51q6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dhatuscan.dhatuscan",
+            "certificate_hash": "074fe6fd3bf9e9dbe5414821151b99cd5e7c01c4"
+          }
+        },
+        {
           "client_id": "553622699540-8nr8a243gd1gmrk966bhejlbc5e91p20.apps.googleusercontent.com",
           "client_type": 3
         }
