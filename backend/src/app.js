@@ -48,14 +48,10 @@ export function createApp() {
   // ── Global error handler ────────────────────────────────────────────────
   // eslint-disable-next-line no-unused-vars
   app.use((err, _req, res, _next) => {
-    console.error('[DhatuScan API Error]', err);
-
-    // Don't leak stack traces in production.
-    const isDev = process.env.NODE_ENV === 'development';
+    console.error('[DhatuScan API Error]', err.message, err.stack);
 
     return res.status(500).json({
-      message: 'Internal server error',
-      ...(isDev && { detail: err.message, stack: err.stack }),
+      message: err.message || 'Internal server error',
     });
   });
 

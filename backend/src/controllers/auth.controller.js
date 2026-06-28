@@ -5,8 +5,11 @@ import { OAuth2Client } from 'google-auth-library';
 import prisma from '../config/database.js';
 import { signToken } from '../utils/jwt.js';
 
-// Setup OAuth Client
-const client = new OAuth2Client();
+// Setup OAuth Client - single shared instance
+const client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID_WEB ||
+  '553622699540-8nr8a243gd1gmrk966bhejlbc5e91p20.apps.googleusercontent.com'
+);
 
 /**
  * Verify Google ID Token
@@ -21,31 +24,37 @@ async function verifyGoogleIdToken(idToken) {
     };
   }
 
-  const audiences = [];
-  if (process.env.GOOGLE_CLIENT_ID_WEB) {
-    audiences.push(process.env.GOOGLE_CLIENT_ID_WEB);
-  }
-  if (process.env.GOOGLE_CLIENT_ID_ANDROID) {
-    audiences.push(process.env.GOOGLE_CLIENT_ID_ANDROID);
-  }
-  if (process.env.GOOGLE_CLIENT_ID_IOS) {
-    audiences.push(process.env.GOOGLE_CLIENT_ID_IOS);
-  }
+  // Accept tokens from any of our registered client IDs.
+  // The web client ID is the primary audience for Android tokens.
+  const audiences = [
+    '553622699540-8nr8a243gd1gmrk966bhejlbc5e91p20.apps.googleusercontent.com',
+    '553622699540-mc96gaunekjeuo708j73bvkr0p3nmnth.apps.googleusercontent.com',
+    ...(process.env.GOOGLE_CLIENT_ID_WEB ? [process.env.GOOGLE_CLIENT_ID_WEB] : []),
+    ...(process.env.GOOGLE_CLIENT_ID_ANDROID ? [process.env.GOOGLE_CLIENT_ID_ANDROID] : []),
+    ...(process.env.GOOGLE_CLIENT_ID_IOS ? [process.env.GOOGLE_CLIENT_ID_IOS] : []),
+  ];
+
+  // De-duplicate audiences
+  const uniqueAudiences = [...new Set(audiences)];
+
+  console.log('[Auth] Verifying idToken, accepted audiences:', uniqueAudiences);
 
   const ticket = await client.verifyIdToken({
-    idToken: idToken,
-    audience: audiences.length === 1 ? audiences[0] : (audiences.length === 0 ? undefined : audiences),
+    idToken,
+    audience: uniqueAudiences,
   });
-  
+
   const payload = ticket.getPayload();
   if (!payload) {
     throw new Error('Failed to parse Google ID Token payload.');
   }
 
+  console.log('[Auth] Token verified for:', payload['email']);
+
   return {
     googleId: payload['sub'],
     email: payload['email'],
-    name: payload['name'],
+    name: payload['name'] || payload['email'].split('@')[0],
   };
 }
 
