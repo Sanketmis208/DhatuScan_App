@@ -22,6 +22,9 @@ async function verifyGoogleIdToken(idToken) {
   }
 
   const audiences = [];
+  if (process.env.GOOGLE_CLIENT_ID_WEB) {
+    audiences.push(process.env.GOOGLE_CLIENT_ID_WEB);
+  }
   if (process.env.GOOGLE_CLIENT_ID_ANDROID) {
     audiences.push(process.env.GOOGLE_CLIENT_ID_ANDROID);
   }

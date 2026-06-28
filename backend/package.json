@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "node --watch src/server.js",
-    "start": "node src/server.js",
+    "start": "npx prisma migrate deploy && node src/server.js",
     "test": "node --experimental-vm-modules node_modules/.bin/jest --runInBand --forceExit",
     "test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage --runInBand --forceExit",
     "db:generate": "prisma generate",
