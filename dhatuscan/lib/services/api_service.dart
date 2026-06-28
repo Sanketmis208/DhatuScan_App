@@ -25,7 +25,7 @@ class ApiService implements ApiServiceInterface {
   // For an Android emulator, use 10.0.2.2:
   //   'http://10.0.2.2:3000/api'
   // For a deployed backend, use the full HTTPS URL.
-  static const String baseUrl = 'http://10.0.2.2:3000/api';
+  static const String baseUrl = 'https://dhatuscan-app.onrender.com/api';
 
   // ── Singleton ─────────────────────────────────────────────────────────────
   static final ApiService _instance = ApiService._internal();
