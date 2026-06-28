@@ -91,6 +91,9 @@ class SarataGroupCard extends StatelessWidget {
                 final isSelected = selections[item.text] ?? false;
                 final displayTranslation = SarataTranslations.translations[item.text] ?? item.text;
 
+                final cleanText = item.text.replaceAll(RegExp(r'\s*\(\d+\s*pts?\)\s*$', caseSensitive: false), '');
+                final cleanTranslation = displayTranslation.replaceAll(RegExp(r'\s*\(\d+\s*pts?\)\s*$', caseSensitive: false), '');
+
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 4),
                   decoration: BoxDecoration(
@@ -174,7 +177,7 @@ class SarataGroupCard extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  item.text,
+                                  cleanText,
                                   style: GoogleFonts.lato(
                                     fontSize: 13.5,
                                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -183,7 +186,7 @@ class SarataGroupCard extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  displayTranslation,
+                                  cleanTranslation,
                                   style: TextStyle(
                                     fontFamily: 'NotoSansDevanagari',
                                     fontSize: 12,
@@ -193,26 +196,6 @@ class SarataGroupCard extends StatelessWidget {
                               ],
                             ),
                           ),
-
-                          // Optional points badge if points > 1
-                          if (item.points > 1)
-                            Container(
-                              margin: const EdgeInsets.only(left: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.blue.shade50,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.blue.shade100),
-                              ),
-                              child: Text(
-                                '+${item.points} pts',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue.shade800,
-                                ),
-                              ),
-                            ),
                         ],
                       ),
                     ),

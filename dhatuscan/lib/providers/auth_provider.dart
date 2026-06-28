@@ -1,18 +1,15 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kDebugMode;
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import '../services/auth_service.dart';
 import '../services/auth_service_interface.dart';
 import '../services/api_service.dart';
 import '../services/api_service_interface.dart';
 import '../services/local_storage_service.dart';
+import '../core/utils/api_exception.dart';
 
 enum AuthState {
   initial,
-  sendingOtp,
-  otpSent,
-  verifying,
+  authenticating,
   authenticated,
   error,
 }
@@ -35,175 +32,79 @@ class AuthProvider extends ChangeNotifier {
         _apiService = apiService;
 
   AuthState _state = AuthState.initial;
-  String? _verificationId;
   String? _errorMessage;
-  String? _phoneNumber;
   bool _isNewUser = false;
-  UserCredential? _userCredential;
 
   AuthState get state => _state;
-  String? get verificationId => _verificationId;
   String? get errorMessage => _errorMessage;
-  String? get phoneNumber => _phoneNumber;
   bool get isNewUser => _isNewUser;
   bool get isLoggedIn => LocalStorageService.isLoggedIn;
-  UserCredential? get userCredential => _userCredential;
 
-  // Send OTP — also concurrently checks whether the user is new via the backend.
-  Future<void> sendOtp(String phone) async {
-    _state = AuthState.sendingOtp;
-    _phoneNumber = phone;
+  /// Sign Up with Google
+  Future<bool> signUp() async {
+    _state = AuthState.authenticating;
     _errorMessage = null;
+    _isNewUser = true;
     notifyListeners();
 
-    // Run the Firebase OTP request and the backend user-existence check in
-    // parallel so the UI can start the OTP countdown immediately while the
-    // backend responds.
-    await Future.wait([
-      _authService.sendOtp(
-        phoneNumber: phone,
-        onCodeSent: (verificationId, resendToken) {
-          _verificationId = verificationId;
-          _state = AuthState.otpSent;
-          notifyListeners();
-        },
-        onVerificationFailed: (error) {
-          debugPrint('Firebase Auth Error Code: ${error.code}');
-          debugPrint('Firebase Auth Error Message: ${error.message}');
-          debugPrint('Firebase Auth Error details: ${error.toString()}');
-
-          if (kDebugMode && !Platform.environment.containsKey('FLUTTER_TEST')) {
-            debugPrint('Firebase Phone Auth failed. Falling back to local bypass / mock OTP mode for testing.');
-            _verificationId = 'mock-verification-id';
-            _state = AuthState.otpSent;
-            _errorMessage = null;
-            notifyListeners();
-            return;
-          }
-
-          _errorMessage = _mapFirebaseError(error);
-          _state = AuthState.error;
-          notifyListeners();
-        },
-        onAutoVerify: (credential) async {
-          await _signInWithCredential(credential);
-        },
-      ),
-      _checkUserEarly(phone),
-    ]);
-  }
-
-  /// Calls [ApiService.checkUser] with the phone number only (no Firebase UID
-  /// yet) to determine whether the user is new or returning. The result is
-  /// stored in [_isNewUser] so it is available immediately after OTP
-  /// verification without a second round-trip.
-  Future<void> _checkUserEarly(String phone) async {
     try {
-      final result = await _apiService.checkUser(phone);
-      _isNewUser = result['isNewUser'] as bool? ?? false;
-    } catch (_) {
-      // Silently ignore — the backend check is best-effort here. The result
-      // will be updated again in _postVerification after the OTP is verified.
-    }
-  }
-
-  // Resend OTP
-  Future<void> resendOtp() async {
-    if (_phoneNumber == null) return;
-    await sendOtp(_phoneNumber!);
-  }
-
-  // Verify OTP
-  Future<bool> verifyOtp(String otp) async {
-    if (_verificationId == null) {
-      _errorMessage = 'Verification session expired. Please resend OTP.';
-      _state = AuthState.error;
-      notifyListeners();
-      return false;
-    }
-
-    _state = AuthState.verifying;
-    _errorMessage = null;
-    notifyListeners();
-
-    if (_verificationId == 'mock-verification-id') {
-      try {
-        final phone = _phoneNumber ?? '';
-        final result = await _apiService.checkUser(phone);
-
-        final token = result['token'] as String?;
-        final userId = result['userId'] as String?;
-        _isNewUser = result['isNewUser'] as bool? ?? false;
-
-        if (token != null) await LocalStorageService.setAuthToken(token);
-        if (userId != null) await LocalStorageService.setUserId(userId);
-        await LocalStorageService.setLoggedIn(true);
-
-        _state = AuthState.authenticated;
+      final idToken = await _authService.signInWithGoogle();
+      if (idToken == null) {
+        _state = AuthState.initial;
         notifyListeners();
-        return true;
-      } catch (e) {
-        debugPrint('Mock backend check failed: $e. Proceeding with offline mock authentication.');
-        _isNewUser = true;
-        await LocalStorageService.setLoggedIn(true);
-        _state = AuthState.authenticated;
-        notifyListeners();
-        return true;
+        return false;
       }
-    }
 
-    try {
-      final credential = await _authService.verifyOtp(
-        verificationId: _verificationId!,
-        smsCode: otp,
-      );
-
-      if (credential != null) {
-        _userCredential = credential;
-        return await _postVerification(credential);
-      }
-      return false;
-    } on FirebaseAuthException catch (e) {
-      _errorMessage = _mapFirebaseError(e);
+      final result = await _apiService.signUp(idToken);
+      return await _postAuth(result, isSignUp: true);
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
       _state = AuthState.error;
       notifyListeners();
       return false;
     } catch (e) {
-      _errorMessage = 'Verification failed. Please try again.';
+      _errorMessage = 'Sign Up failed: ${e.toString()}';
       _state = AuthState.error;
       notifyListeners();
       return false;
     }
   }
 
-  Future<void> _signInWithCredential(PhoneAuthCredential credential) async {
-    try {
-      _state = AuthState.verifying;
-      notifyListeners();
+  /// Login with Google
+  Future<bool> login() async {
+    _state = AuthState.authenticating;
+    _errorMessage = null;
+    _isNewUser = false;
+    notifyListeners();
 
-      final userCredential =
-          await _authService.signInWithCredential(credential);
-      if (userCredential != null) {
-        _userCredential = userCredential;
-        await _postVerification(userCredential);
+    try {
+      final idToken = await _authService.signInWithGoogle();
+      if (idToken == null) {
+        _state = AuthState.initial;
+        notifyListeners();
+        return false;
       }
-    } catch (e) {
-      _errorMessage = 'Auto-verification failed.';
+
+      final result = await _apiService.login(idToken);
+      return await _postAuth(result, isSignUp: false);
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
       _state = AuthState.error;
       notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = 'Login failed: ${e.toString()}';
+      _state = AuthState.error;
+      notifyListeners();
+      return false;
     }
   }
 
-  Future<bool> _postVerification(UserCredential credential) async {
+  Future<bool> _postAuth(Map<String, dynamic> result, {required bool isSignUp}) async {
     try {
-      final phone = _phoneNumber ?? '';
-      final uid = credential.user?.uid;
-
-      final result = await _apiService.checkUser(phone, firebaseUid: uid);
-
       final token = result['token'] as String?;
       final userId = result['userId'] as String?;
-      _isNewUser = result['isNewUser'] as bool? ?? false;
+      _isNewUser = result['isNewUser'] as bool? ?? isSignUp;
 
       final userMap = result['user'] as Map<String, dynamic>?;
       if (userMap != null) {
@@ -218,9 +119,8 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      // Still mark as authenticated even if backend fails (offline mode)
+      // In case local storage storage fails, we still mark as authenticated
       _state = AuthState.authenticated;
-      _isNewUser = true;
       notifyListeners();
       return true;
     }
@@ -229,34 +129,15 @@ class AuthProvider extends ChangeNotifier {
   Future<void> signOut() async {
     await _authService.signOut();
     _state = AuthState.initial;
-    _verificationId = null;
     _errorMessage = null;
-    _phoneNumber = null;
     _isNewUser = false;
     notifyListeners();
-  }
-
-  String _mapFirebaseError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'invalid-phone-number':
-        return 'Invalid phone number format.';
-      case 'too-many-requests':
-        return 'Too many requests. Please try again later.';
-      case 'invalid-verification-code':
-        return 'Invalid OTP. Please check and try again.';
-      case 'session-expired':
-        return 'OTP session expired. Please resend OTP.';
-      case 'network-request-failed':
-        return 'Network error. Check your connection.';
-      default:
-        return e.message ?? 'Authentication failed.';
-    }
   }
 
   void clearError() {
     _errorMessage = null;
     if (_state == AuthState.error) {
-      _state = _verificationId != null ? AuthState.otpSent : AuthState.initial;
+      _state = AuthState.initial;
     }
     notifyListeners();
   }

@@ -1,6 +1,7 @@
 class UserModel {
   final String? id;
-  final String phone;
+  final String? phone;
+  final String? email;
   final String? name;
   final DateTime? dateOfBirth;
   final int? age;
@@ -22,7 +23,8 @@ class UserModel {
 
   UserModel({
     this.id,
-    required this.phone,
+    this.phone,
+    this.email,
     this.name,
     this.dateOfBirth,
     this.age,
@@ -46,7 +48,8 @@ class UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] as String?,
-      phone: json['phone'] as String? ?? '',
+      phone: json['phone'] as String?,
+      email: json['email'] as String?,
       name: json['name'] as String?,
       dateOfBirth: json['dateOfBirth'] != null
           ? DateTime.tryParse(json['dateOfBirth'] as String)
@@ -73,7 +76,8 @@ class UserModel {
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
-      'phone': phone,
+      if (phone != null) 'phone': phone,
+      if (email != null) 'email': email,
       if (name != null) 'name': name,
       if (dateOfBirth != null) 'dateOfBirth': dateOfBirth!.toUtc().toIso8601String(),
       if (age != null) 'age': age,
@@ -98,6 +102,7 @@ class UserModel {
   UserModel copyWith({
     String? id,
     String? phone,
+    String? email,
     String? name,
     DateTime? dateOfBirth,
     int? age,
@@ -120,6 +125,7 @@ class UserModel {
     return UserModel(
       id: id ?? this.id,
       phone: phone ?? this.phone,
+      email: email ?? this.email,
       name: name ?? this.name,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       age: age ?? this.age,

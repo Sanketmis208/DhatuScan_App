@@ -1,4 +1,3 @@
-import 'dart:io' show Platform;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -20,21 +19,13 @@ import 'local_storage_service.dart';
 ///   • All Backend API calls use Dio (Requirement 14.1).
 class ApiService implements ApiServiceInterface {
   // ── Base URL ──────────────────────────────────────────────────────────────
-  // Override with a production URL via app_config.dart or a build argument.
-  // To test on a physical device, uncomment the line below and paste your ngrok URL:
-  // static const String _ngrokUrl = 'https://xxxx.ngrok-free.app/api';
-
-  static String get baseUrl {
-    // If you uncommented _ngrokUrl above, use it here:
-    // return _ngrokUrl;
-
-    try {
-      if (Platform.isAndroid) {
-        return 'http://10.0.2.2:3000/api';
-      }
-    } catch (_) {}
-    return 'http://localhost:3000/api';
-  }
+  // Switch between local emulator, ngrok tunnel, and production.
+  // For a physical device on the same WiFi as your Mac, use your Mac's LAN IP:
+  //   e.g. 'http://192.168.1.X:3000/api'
+  // For an Android emulator, use 10.0.2.2:
+  //   'http://10.0.2.2:3000/api'
+  // For a deployed backend, use the full HTTPS URL.
+  static const String baseUrl = 'http://10.0.2.2:3000/api';
 
   // ── Singleton ─────────────────────────────────────────────────────────────
   static final ApiService _instance = ApiService._internal();
@@ -108,19 +99,29 @@ class ApiService implements ApiServiceInterface {
 
   // ── Auth ──────────────────────────────────────────────────────────────────
 
-  /// `POST /auth/check-user` — unauthenticated endpoint.
-  ///
-  /// Returns `{ token, userId, isNewUser }`.
+  /// `POST /auth/login` — unauthenticated endpoint.
   @override
-  Future<Map<String, dynamic>> checkUser(
-    String phone, {
-    String? firebaseUid,
-  }) async {
+  Future<Map<String, dynamic>> login(String idToken) async {
     await _assertConnected();
     try {
       final response = await _dio.post<dynamic>(
-        '/auth/check-user',
-        data: {'phone': phone, if (firebaseUid != null) 'firebaseUid': firebaseUid},
+        '/auth/login',
+        data: {'idToken': idToken},
+      );
+      return _handleResponse(response);
+    } on DioException catch (e) {
+      throw _wrapDioError(e);
+    }
+  }
+
+  /// `POST /auth/signup` — unauthenticated endpoint.
+  @override
+  Future<Map<String, dynamic>> signUp(String idToken) async {
+    await _assertConnected();
+    try {
+      final response = await _dio.post<dynamic>(
+        '/auth/signup',
+        data: {'idToken': idToken},
       );
       return _handleResponse(response);
     } on DioException catch (e) {

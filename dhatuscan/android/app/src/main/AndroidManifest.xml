@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for all network calls (API, Firebase, Google Sign-In) -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Required by connectivity_plus to check network state -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
     <application
         android:label="dhatuscan"
         android:name="${applicationName}"

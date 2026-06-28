@@ -23,6 +23,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
 
   // Controllers
   final _nameCtrl       = TextEditingController();
+  final _phoneCtrl      = TextEditingController();
   final _dobCtrl        = TextEditingController();
   final _ageCtrl        = TextEditingController();
   final _addressCtrl    = TextEditingController();
@@ -59,8 +60,81 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = context.read<UserProvider>().user;
+      if (user != null) {
+        if (user.phone != null && user.phone!.isNotEmpty) {
+          _phoneCtrl.text = user.phone!;
+        }
+        if (user.name != null && user.name!.isNotEmpty) {
+          _nameCtrl.text = user.name!;
+        }
+        if (user.dateOfBirth != null) {
+          _selectedDob = user.dateOfBirth;
+          _dobCtrl.text = DateFormat('dd/MM/yyyy').format(user.dateOfBirth!);
+        }
+        if (user.age != null) {
+          _ageCtrl.text = user.age.toString();
+        }
+        if (user.gender != null) {
+          setState(() {
+            _gender = user.gender;
+          });
+        }
+        if (user.address != null) {
+          _addressCtrl.text = user.address!;
+        }
+        if (user.height != null) {
+          _heightCtrl.text = user.height.toString();
+        }
+        if (user.weight != null) {
+          _weightCtrl.text = user.weight.toString();
+        }
+        if (user.bmi != null) {
+          _bmiCtrl.text = user.bmi!.toStringAsFixed(1);
+        }
+        if (user.bp != null) {
+          _bpCtrl.text = user.bp!;
+        }
+        if (user.pulseRate != null) {
+          _pulseCtrl.text = user.pulseRate.toString();
+        }
+        if (user.medicalHistory != null) {
+          _medHistCtrl.text = user.medicalHistory!;
+        }
+        if (user.occupation != null) {
+          _occupCtrl.text = user.occupation!;
+        }
+        if (user.physicalActivity != null) {
+          setState(() {
+            _physicalActivity = user.physicalActivity;
+          });
+        }
+        if (user.sleepDuration != null) {
+          setState(() {
+            _sleepDuration = user.sleepDuration;
+          });
+        }
+        if (user.appetitePattern != null) {
+          setState(() {
+            _appetitePattern = user.appetitePattern;
+          });
+        }
+        if (user.waterIntake != null) {
+          setState(() {
+            _waterIntake = user.waterIntake;
+          });
+        }
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _nameCtrl.dispose();
+    _phoneCtrl.dispose();
     _dobCtrl.dispose();
     _ageCtrl.dispose();
     _addressCtrl.dispose();
@@ -122,7 +196,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
     final userProvider = context.read<UserProvider>();
 
     final model = UserModel(
-      phone: userProvider.user?.phone ?? '',
+      phone: _phoneCtrl.text.trim(),
       name: _nameCtrl.text.trim(),
       dateOfBirth: _selectedDob,
       age: int.tryParse(_ageCtrl.text),
@@ -146,10 +220,16 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
     if (!mounted) return;
 
     if (success) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        AppRoutes.dashboard,
-        (route) => false,
-      );
+      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      final isEdit = args != null && args['isEdit'] == true;
+      if (isEdit) {
+        Navigator.of(context).pop();
+      } else {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.dashboard,
+          (route) => false,
+        );
+      }
     } else {
       Fluttertoast.showToast(
         msg: userProvider.errorMessage ?? AppStrings.errorGeneric,
@@ -164,32 +244,54 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final isEdit = args != null && args['isEdit'] == true;
 
     return PopScope(
-      canPop: false,
+      canPop: isEdit,
       child: Scaffold(
         backgroundColor: AppColors.primary,
         body: Column(
           children: [
             // ── Custom Header ──────────────────────────────────────────────
             Container(
-              padding: EdgeInsets.fromLTRB(20, topPadding + 16, 20, 24),
+              padding: EdgeInsets.fromLTRB(20, topPadding + 8, 20, 24),
               width: double.infinity,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    AppStrings.personalDetailsTitle,
-                    style: GoogleFonts.poppins(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 0.5,
-                    ),
+                  Row(
+                    children: [
+                      if (isEdit)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: GestureDetector(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: const Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      Expanded(
+                        child: Text(
+                          isEdit ? 'Edit Profile' : AppStrings.personalDetailsTitle,
+                          style: GoogleFonts.poppins(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Tell us about yourself so we can personalise your Dhatu assessment.',
+                    isEdit
+                        ? 'Update your details below. Email and phone number are locked.'
+                        : 'Tell us about yourself so we can personalise your Dhatu assessment.',
                     style: GoogleFonts.lato(
                       fontSize: 14,
                       color: Colors.white.withOpacity(0.7),
@@ -227,6 +329,8 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                           title: 'Basic Information',
                           children: [
                             _buildNameField(),
+                            const SizedBox(height: 14),
+                            _buildPhoneField(),
                             const SizedBox(height: 14),
                             _buildDobField(),
                             const SizedBox(height: 14),
@@ -362,7 +466,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                                         ),
                                       )
                                     : Text(
-                                        AppStrings.saveAndContinue,
+                                        isEdit ? 'Save Changes' : AppStrings.saveAndContinue,
                                         textAlign: TextAlign.center,
                                         style: GoogleFonts.poppins(
                                           fontSize: 16,
@@ -400,6 +504,42 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
       ),
       validator: (v) =>
           (v == null || v.trim().isEmpty) ? AppStrings.errorRequired : null,
+    );
+  }
+
+  Widget _buildPhoneField() {
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final isEdit = args != null && args['isEdit'] == true;
+
+    return TextFormField(
+      controller: _phoneCtrl,
+      keyboardType: TextInputType.phone,
+      readOnly: isEdit,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(10),
+      ],
+      decoration: InputDecoration(
+        labelText: 'Phone Number *',
+        prefixIcon: const Icon(Icons.phone_outlined),
+        hintText: 'Enter 10-digit number',
+        suffixIcon: isEdit
+            ? const Icon(Icons.lock_outline_rounded, color: Colors.grey, size: 18)
+            : null,
+        filled: isEdit,
+        fillColor: isEdit ? Colors.grey.shade100 : null,
+      ),
+      validator: (v) {
+        if (isEdit) return null;
+        if (v == null || v.trim().isEmpty) {
+          return AppStrings.errorRequired;
+        }
+        final cleaned = v.trim();
+        if (cleaned.length != 10) {
+          return 'Enter a valid 10-digit phone number';
+        }
+        return null;
+      },
     );
   }
 

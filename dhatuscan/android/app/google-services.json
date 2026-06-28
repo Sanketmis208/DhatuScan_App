@@ -12,7 +12,12 @@
           "package_name": "com.dhatuscan.dhatuscan"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "553622699540-8nr8a243gd1gmrk966bhejlbc5e91p20.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDfEKsf0oonFintAn2jtkK5GkbUkkIB2tI"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "553622699540-8nr8a243gd1gmrk966bhejlbc5e91p20.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "553622699540-mc96gaunekjeuo708j73bvkr0p3nmnth.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dhatuscan.dhatuscan"
+              }
+            }
+          ]
         }
       }
     }

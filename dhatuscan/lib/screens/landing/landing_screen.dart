@@ -2,10 +2,14 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_routes.dart';
 import '../../core/constants/app_strings.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/local_storage_service.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -50,6 +54,100 @@ class _LandingScreenState extends State<LandingScreen>
   void dispose() {
     _ctrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleSignUp(BuildContext context) async {
+    final authProvider = context.read<AuthProvider>();
+    final success = await authProvider.signUp();
+    if (!mounted) return;
+
+    if (success) {
+      _navigateNext(context, authProvider);
+    } else {
+      final error = authProvider.errorMessage ?? '';
+      if (error.toLowerCase().contains('already') || error.toLowerCase().contains('exists')) {
+        _showConflictDialog(context, isSignUpPrompt: false);
+      } else {
+        Fluttertoast.showToast(msg: error.isNotEmpty ? error : 'Sign Up failed');
+      }
+    }
+  }
+
+  Future<void> _handleLogIn(BuildContext context) async {
+    final authProvider = context.read<AuthProvider>();
+    final success = await authProvider.login();
+    if (!mounted) return;
+
+    if (success) {
+      _navigateNext(context, authProvider);
+    } else {
+      final error = authProvider.errorMessage ?? '';
+      if (error.toLowerCase().contains('not found') || error.toLowerCase().contains('no account')) {
+        _showConflictDialog(context, isSignUpPrompt: true);
+      } else {
+        Fluttertoast.showToast(msg: error.isNotEmpty ? error : 'Login failed');
+      }
+    }
+  }
+
+  void _navigateNext(BuildContext context, AuthProvider authProvider) {
+    final userData = LocalStorageService.userData;
+    final isProfileComplete = userData?['isProfileComplete'] as bool? ?? false;
+    final hasName = userData?['name'] != null && (userData?['name'] as String).trim().isNotEmpty;
+    final hasProfile = isProfileComplete || hasName;
+
+    if (authProvider.isNewUser || !hasProfile) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        AppRoutes.personalDetails,
+        (route) => false,
+      );
+    } else {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        AppRoutes.dashboard,
+        (route) => false,
+      );
+    }
+  }
+
+  void _showConflictDialog(BuildContext context, {required bool isSignUpPrompt}) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          isSignUpPrompt ? 'Account Not Found' : 'Account Already Exists',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          isSignUpPrompt
+              ? 'No account was found with this Google profile. Would you like to sign up and create a new account?'
+              : 'An account already exists with this Google profile. Please log in instead.',
+          style: GoogleFonts.lato(height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              if (isSignUpPrompt) {
+                _handleSignUp(context);
+              } else {
+                _handleLogIn(context);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: Text(isSignUpPrompt ? 'Sign Up' : 'Log In'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -97,141 +195,165 @@ class _LandingScreenState extends State<LandingScreen>
               ),
 
               // ── Main content ───────────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(height: size.height * 0.10),
-
-                    // Logo
-                    ScaleTransition(
-                      scale: _logoAnim,
-                      child: Center(child: _buildLogo()),
-                    ),
-
-                    const SizedBox(height: 28),
-
-                    // App name
-                    FadeTransition(
-                      opacity: _textAnim,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 0.3),
-                          end: Offset.zero,
-                        ).animate(_textAnim),
-                        child: Column(
-                          children: [
-                            Text(
-                              AppStrings.appName,
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.poppins(
-                                fontSize: 36,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                letterSpacing: 1.8,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            // Accent underline
-                            Container(
-                              width: 60,
-                              height: 3,
-                              decoration: BoxDecoration(
-                                color: AppColors.accent,
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                          ],
-                        ),
+              SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 28),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(height: size.height * 0.10),
+  
+                      // Logo
+                      ScaleTransition(
+                        scale: _logoAnim,
+                        child: Center(child: _buildLogo()),
                       ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Subtitle
-                    FadeTransition(
-                      opacity: _textAnim,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 0.4),
-                          end: Offset.zero,
-                        ).animate(_textAnim),
-                        child: Text(
-                          AppStrings.appSubtitle,
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.lato(
-                            fontSize: 15,
-                            color: Colors.white70,
-                            height: 1.7,
+  
+                      const SizedBox(height: 28),
+  
+                      // App name
+                      FadeTransition(
+                        opacity: _textAnim,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.3),
+                            end: Offset.zero,
+                          ).animate(_textAnim),
+                          child: Column(
+                            children: [
+                              Text(
+                                AppStrings.appName,
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 1.8,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              // Accent underline
+                              Container(
+                                width: 60,
+                                height: 3,
+                                decoration: BoxDecoration(
+                                  color: AppColors.accent,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    ),
-
-                    // Dhatu pills row
-                    const SizedBox(height: 24),
-                    FadeTransition(
-                      opacity: _textAnim,
-                      child: _DhatuPills(),
-                    ),
-
-                    const Spacer(),
-
-                    // ── CTA Buttons ────────────────────────────────────────
-                    FadeTransition(
-                      opacity: _btnAnim,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 0.5),
-                          end: Offset.zero,
-                        ).animate(_btnAnim),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // Primary: Begin Assessment
-                            _GradientButton(
-                              key: const Key('beginAssessmentButton'),
-                              label: AppStrings.beginAssessment,
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFFE8A838), Color(0xFFD4942A)],
-                              ),
-                              onPressed: () => Navigator.of(context)
-                                  .pushNamed(AppRoutes.phone),
+  
+                      const SizedBox(height: 20),
+  
+                      // Subtitle
+                      FadeTransition(
+                        opacity: _textAnim,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.4),
+                            end: Offset.zero,
+                          ).animate(_textAnim),
+                          child: Text(
+                            AppStrings.appSubtitle,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.lato(
+                              fontSize: 15,
+                              color: Colors.white70,
+                              height: 1.7,
                             ),
-
-                            const SizedBox(height: 14),
-
-                            // Secondary: Already have account
-                            OutlinedButton(
-                              key: const Key('alreadyHaveAccountButton'),
-                              onPressed: () => Navigator.of(context)
-                                  .pushNamed(AppRoutes.phone),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                side: const BorderSide(
-                                    color: Colors.white38, width: 1.5),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                              ),
-                              child: Text(
-                                AppStrings.alreadyHaveAccount,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-
-                    SizedBox(height: size.height * 0.06),
-                  ],
+  
+                      // Dhatu pills row
+                      const SizedBox(height: 24),
+                      FadeTransition(
+                        opacity: _textAnim,
+                        child: _DhatuPills(),
+                      ),
+  
+                      const SizedBox(height: 32),
+  
+                      // ── CTA Buttons ────────────────────────────────────────
+                      FadeTransition(
+                        opacity: _btnAnim,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.5),
+                            end: Offset.zero,
+                          ).animate(_btnAnim),
+                          child: Consumer<AuthProvider>(
+                            builder: (context, authProvider, _) {
+                              final isAuthenticating =
+                                  authProvider.state == AuthState.authenticating;
+  
+                              if (isAuthenticating) {
+                                return const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 24),
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.accent,
+                                    ),
+                                  ),
+                                );
+                              }
+  
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  // Primary: Sign Up
+                                  _GradientButton(
+                                    key: const Key('signUpButton'),
+                                    label: 'Sign Up',
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFFE8A838),
+                                        Color(0xFFD4942A)
+                                      ],
+                                    ),
+                                    onPressed: () => _handleSignUp(context),
+                                  ),
+  
+                                  const SizedBox(height: 14),
+  
+                                  // Secondary: Log In
+                                  OutlinedButton(
+                                    key: const Key('loginButton'),
+                                    onPressed: () => _handleLogIn(context),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      side: const BorderSide(
+                                        color: Colors.white38,
+                                        width: 1.5,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 16,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Log In',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+  
+                      SizedBox(height: size.height * 0.06),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -288,7 +410,13 @@ class _LandingScreenState extends State<LandingScreen>
 
 class _DhatuPills extends StatelessWidget {
   static const _dhatus = [
-    'Rasa', 'Rakta', 'Mamsa', 'Meda', 'Asthi', 'Majja', 'Shukra'
+    'Rasa',
+    'Rakta',
+    'Mamsa',
+    'Meda',
+    'Asthi',
+    'Majja',
+    'Shukra'
   ];
 
   @override

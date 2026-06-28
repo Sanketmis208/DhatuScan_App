@@ -1,6 +1,5 @@
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,148 +9,81 @@ import 'package:dhatuscan/services/api_service_interface.dart';
 import 'package:dhatuscan/core/utils/api_exception.dart';
 import 'package:dhatuscan/services/local_storage_service.dart';
 
-// Convenient typedef so test code stays readable.
 typedef AuthState = app.AuthState;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Fakes — pure Dart, no Firebase initialisation required
+// Fakes
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Controls what [FakeAuthService.sendOtp] does on the next call.
-enum _SendOtpBehaviour { success, failure }
-
-/// Controls what [FakeAuthService.verifyOtp] does on the next call.
-enum _VerifyOtpBehaviour { success, invalidCode, expired, genericFailure }
-
 class FakeAuthService implements AuthServiceInterface {
-  _SendOtpBehaviour sendBehaviour = _SendOtpBehaviour.success;
-  _VerifyOtpBehaviour verifyBehaviour = _VerifyOtpBehaviour.success;
-
-  String stubbedVerificationId = 'fake-verification-id';
-  UserCredential? stubbedCredential;
+  bool failGoogleSignIn = false;
+  String? stubbedIdToken = 'fake-google-idtoken';
 
   @override
-  Future<void> sendOtp({
-    required String phoneNumber,
-    required Function(String verificationId, int? resendToken) onCodeSent,
-    required Function(FirebaseAuthException error) onVerificationFailed,
-    required Function(PhoneAuthCredential credential) onAutoVerify,
-    int? resendToken,
-  }) async {
-    if (sendBehaviour == _SendOtpBehaviour.success) {
-      onCodeSent(stubbedVerificationId, null);
-    } else {
-      onVerificationFailed(
-        FirebaseAuthException(
-          code: 'network-request-failed',
-          message: 'Network error. Check your connection.',
-        ),
-      );
+  Future<String?> signInWithGoogle() async {
+    if (failGoogleSignIn) {
+      throw Exception('Google Sign-In failed');
     }
-  }
-
-  @override
-  Future<UserCredential?> verifyOtp({
-    required String verificationId,
-    required String smsCode,
-  }) async {
-    switch (verifyBehaviour) {
-      case _VerifyOtpBehaviour.success:
-        return stubbedCredential ?? _FakeUserCredential();
-      case _VerifyOtpBehaviour.invalidCode:
-        throw FirebaseAuthException(
-          code: 'invalid-verification-code',
-          message: 'Invalid OTP. Please check and try again.',
-        );
-      case _VerifyOtpBehaviour.expired:
-        throw FirebaseAuthException(
-          code: 'session-expired',
-          message: 'OTP session expired. Please resend OTP.',
-        );
-      case _VerifyOtpBehaviour.genericFailure:
-        throw FirebaseAuthException(
-          code: 'unknown',
-          message: 'Authentication failed.',
-        );
-    }
-  }
-
-  @override
-  Future<UserCredential?> signInWithCredential(
-      PhoneAuthCredential credential) async {
-    return _FakeUserCredential();
+    return stubbedIdToken;
   }
 
   @override
   Future<void> signOut() async {
-    // Mirror AuthService: clear local storage so isLoggedIn returns false
     await LocalStorageService.logout();
   }
 
   @override
-  User? get currentUser => null;
-
-  @override
-  String? get firebaseUid => null;
+  String? get googleId => 'fake-google-id';
 }
 
 class FakeApiService implements ApiServiceInterface {
-  bool checkUserSuccess = true;
-  bool isNewUser = false;
-  String stubbedToken = 'fake-jwt-token';
-  String stubbedUserId = 'fake-user-id';
+  bool signupSuccess = true;
+  bool loginSuccess = true;
+  int signupStatusCode = 201;
+  int loginStatusCode = 200;
+  String signupErrorMessage = 'SignUp failed';
+  String loginErrorMessage = 'Login failed';
 
   @override
-  Future<Map<String, dynamic>> checkUser(
-    String phone, {
-    String? firebaseUid,
-  }) async {
-    if (!checkUserSuccess) {
-      throw const ApiException(statusCode: 401, message: 'Unauthorized');
+  Future<Map<String, dynamic>> signUp(String idToken) async {
+    if (!signupSuccess) {
+      throw ApiException(statusCode: signupStatusCode, message: signupErrorMessage);
     }
     return {
-      'token': stubbedToken,
-      'userId': stubbedUserId,
-      'isNewUser': isNewUser,
+      'token': 'fake-jwt-signup',
+      'userId': 'fake-user-id-signup',
+      'isNewUser': true,
+      'user': {'email': 'signup@example.com', 'isProfileComplete': false},
     };
   }
 
   @override
-  Future<Map<String, dynamic>> saveProfile(
-      Map<String, dynamic> profileData) async => {};
+  Future<Map<String, dynamic>> login(String idToken) async {
+    if (!loginSuccess) {
+      throw ApiException(statusCode: loginStatusCode, message: loginErrorMessage);
+    }
+    return {
+      'token': 'fake-jwt-login',
+      'userId': 'fake-user-id-login',
+      'isNewUser': false,
+      'user': {'email': 'login@example.com', 'isProfileComplete': true},
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> saveProfile(Map<String, dynamic> profileData) async => {};
 
   @override
   Future<Map<String, dynamic>> getProfile(String userId) async => {};
 
   @override
-  Future<Map<String, dynamic>> submitAssessment(
-      Map<String, dynamic> assessmentData) async => {};
+  Future<Map<String, dynamic>> submitAssessment(Map<String, dynamic> assessmentData) async => {};
 
   @override
   Future<Map<String, dynamic>> getAssessmentHistory(String userId) async => {};
 
   @override
   Future<Map<String, dynamic>> getAssessment(String assessmentId) async => {};
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Minimal fake UserCredential / User
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _FakeUser extends Fake implements User {
-  @override
-  String get uid => 'fake-uid-123';
-}
-
-class _FakeUserCredential extends Fake implements UserCredential {
-  @override
-  User? get user => _FakeUser();
-
-  @override
-  AdditionalUserInfo? get additionalUserInfo => null;
-
-  @override
-  AuthCredential? get credential => null;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -177,8 +109,8 @@ Future<app.AuthProvider> _makeProvider({
 // ─────────────────────────────────────────────────────────────────────────────
 
 void main() {
-  group('AuthProvider — sendOtp', () {
-    test('happy path: state goes initial → sendingOtp → otpSent', () async {
+  group('AuthProvider — signUp', () {
+    test('happy path: state goes initial → authenticating → authenticated', () async {
       final auth = FakeAuthService();
       final api = FakeApiService();
       final provider = await _makeProvider(authService: auth, apiService: api);
@@ -186,223 +118,81 @@ void main() {
       final states = <AuthState>[];
       provider.addListener(() => states.add(provider.state));
 
-      // Initial state before any call
       expect(provider.state, AuthState.initial);
 
-      await provider.sendOtp('9876543210');
+      final result = await provider.signUp();
 
-      // sendOtp fires two notifyListeners: once for sendingOtp, once for otpSent
-      expect(states, contains(AuthState.sendingOtp));
-      expect(states.last, AuthState.otpSent);
-      expect(provider.verificationId, 'fake-verification-id');
+      expect(result, isTrue);
+      expect(states, contains(AuthState.authenticating));
+      expect(states.last, AuthState.authenticated);
+      expect(provider.isNewUser, isTrue);
       expect(provider.errorMessage, isNull);
+      expect(LocalStorageService.authToken, 'fake-jwt-signup');
+      expect(LocalStorageService.userId, 'fake-user-id-signup');
+      expect(LocalStorageService.isLoggedIn, isTrue);
     });
 
-    test('failure: state goes initial → sendingOtp → error, errorMessage set', () async {
-      final auth = FakeAuthService()..sendBehaviour = _SendOtpBehaviour.failure;
-      final api = FakeApiService();
+    test('failure user already exists: returns false, error state, sets errorMessage', () async {
+      final auth = FakeAuthService();
+      final api = FakeApiService()
+        ..signupSuccess = false
+        ..signupStatusCode = 400
+        ..signupErrorMessage = 'You already have an account. Please log in.';
       final provider = await _makeProvider(authService: auth, apiService: api);
 
-      final states = <AuthState>[];
-      provider.addListener(() => states.add(provider.state));
+      final result = await provider.signUp();
 
-      await provider.sendOtp('9876543210');
-
-      expect(states, contains(AuthState.sendingOtp));
-      expect(states.last, AuthState.error);
-      expect(provider.errorMessage, isNotNull);
-      expect(provider.errorMessage, isNotEmpty);
+      expect(result, isFalse);
+      expect(provider.state, AuthState.error);
+      expect(provider.errorMessage, 'You already have an account. Please log in.');
     });
   });
 
-  group('AuthProvider — verifyOtp', () {
-    test('success new user: state → authenticated, isNewUser == true', () async {
+  group('AuthProvider — login', () {
+    test('happy path: logs in and saves JWT', () async {
       final auth = FakeAuthService();
-      final api = FakeApiService()..isNewUser = true;
+      final api = FakeApiService();
       final provider = await _makeProvider(authService: auth, apiService: api);
 
-      await provider.sendOtp('9876543210');
-      expect(provider.state, AuthState.otpSent);
-
-      final result = await provider.verifyOtp('123456');
-
-      expect(result, isTrue);
-      expect(provider.state, AuthState.authenticated);
-      expect(provider.isNewUser, isTrue);
-      expect(provider.errorMessage, isNull);
-    });
-
-    test('success returning user: state → authenticated, isNewUser == false', () async {
-      final auth = FakeAuthService();
-      final api = FakeApiService()..isNewUser = false;
-      final provider = await _makeProvider(authService: auth, apiService: api);
-
-      await provider.sendOtp('9876543210');
-      final result = await provider.verifyOtp('123456');
+      final result = await provider.login();
 
       expect(result, isTrue);
       expect(provider.state, AuthState.authenticated);
       expect(provider.isNewUser, isFalse);
+      expect(LocalStorageService.authToken, 'fake-jwt-login');
+      expect(LocalStorageService.userId, 'fake-user-id-login');
     });
 
-    test('failure incorrect OTP: state → error, errorMessage set', () async {
-      final auth = FakeAuthService()
-        ..verifyBehaviour = _VerifyOtpBehaviour.invalidCode;
-      final api = FakeApiService();
-      final provider = await _makeProvider(authService: auth, apiService: api);
-
-      await provider.sendOtp('9876543210');
-      final result = await provider.verifyOtp('000000');
-
-      expect(result, isFalse);
-      expect(provider.state, AuthState.error);
-      expect(provider.errorMessage, isNotNull);
-      expect(provider.errorMessage, isNotEmpty);
-    });
-
-    test('failure expired OTP: state → error, message contains "expired" or "session"', () async {
-      final auth = FakeAuthService()
-        ..verifyBehaviour = _VerifyOtpBehaviour.expired;
-      final api = FakeApiService();
-      final provider = await _makeProvider(authService: auth, apiService: api);
-
-      await provider.sendOtp('9876543210');
-      final result = await provider.verifyOtp('123456');
-
-      expect(result, isFalse);
-      expect(provider.state, AuthState.error);
-      expect(provider.errorMessage, isNotNull);
-
-      final message = provider.errorMessage!.toLowerCase();
-      expect(
-        message.contains('expired') || message.contains('session'),
-        isTrue,
-        reason: 'Expected error message to mention "expired" or "session", '
-            'got: "${provider.errorMessage}"',
-      );
-    });
-
-    test('verifyOtp with no verificationId: state → error', () async {
+    test('failure account not found: returns false, error state, sets errorMessage', () async {
       final auth = FakeAuthService();
-      final api = FakeApiService();
+      final api = FakeApiService()
+        ..loginSuccess = false
+        ..loginStatusCode = 404
+        ..loginErrorMessage = 'Account not found. Please sign up.';
       final provider = await _makeProvider(authService: auth, apiService: api);
 
-      // Do NOT call sendOtp — verificationId is null
-      final result = await provider.verifyOtp('123456');
+      final result = await provider.login();
 
       expect(result, isFalse);
       expect(provider.state, AuthState.error);
-      expect(provider.errorMessage, isNotNull);
-    });
-  });
-
-  group('AuthProvider — resendOtp', () {
-    test('resendOtp triggers OTP send again, state → otpSent', () async {
-      final auth = FakeAuthService();
-      final api = FakeApiService();
-      final provider = await _makeProvider(authService: auth, apiService: api);
-
-      await provider.sendOtp('9876543210');
-      expect(provider.state, AuthState.otpSent);
-
-      // Track state transitions after first sendOtp completes
-      final statesAfterResend = <AuthState>[];
-      provider.addListener(() => statesAfterResend.add(provider.state));
-
-      await provider.resendOtp();
-
-      expect(statesAfterResend, contains(AuthState.sendingOtp));
-      expect(statesAfterResend.last, AuthState.otpSent);
-      expect(provider.state, AuthState.otpSent);
-      expect(provider.verificationId, 'fake-verification-id');
-    });
-  });
-
-  group('AuthProvider — clearError', () {
-    test('clearError: errorMessage becomes null', () async {
-      final auth = FakeAuthService()..sendBehaviour = _SendOtpBehaviour.failure;
-      final api = FakeApiService();
-      final provider = await _makeProvider(authService: auth, apiService: api);
-
-      await provider.sendOtp('9876543210');
-      expect(provider.state, AuthState.error);
-      expect(provider.errorMessage, isNotNull);
-
-      provider.clearError();
-
-      expect(provider.errorMessage, isNull);
-      expect(provider.state, isNot(AuthState.error));
-    });
-
-    test('clearError when no verificationId: state returns to initial', () async {
-      final auth = FakeAuthService()..sendBehaviour = _SendOtpBehaviour.failure;
-      final api = FakeApiService();
-      final provider = await _makeProvider(authService: auth, apiService: api);
-
-      await provider.sendOtp('9876543210');
-      expect(provider.state, AuthState.error);
-
-      provider.clearError();
-
-      // verificationId was not set (send failed), so state should go back to initial
-      expect(provider.state, AuthState.initial);
-    });
-
-    test('clearError after failed OTP verify: state returns to otpSent', () async {
-      final auth = FakeAuthService()
-        ..verifyBehaviour = _VerifyOtpBehaviour.invalidCode;
-      final api = FakeApiService();
-      final provider = await _makeProvider(authService: auth, apiService: api);
-
-      await provider.sendOtp('9876543210');
-      await provider.verifyOtp('000000');
-      expect(provider.state, AuthState.error);
-
-      provider.clearError();
-
-      // verificationId IS set (send succeeded), so state should go to otpSent
-      expect(provider.state, AuthState.otpSent);
-      expect(provider.errorMessage, isNull);
+      expect(provider.errorMessage, 'Account not found. Please sign up.');
     });
   });
 
   group('AuthProvider — signOut', () {
-    test('signOut: isLoggedIn is false and state is cleared', () async {
+    test('signOut: clears credentials and local storage', () async {
       final auth = FakeAuthService();
       final api = FakeApiService();
       final provider = await _makeProvider(authService: auth, apiService: api);
 
-      // Authenticate first
-      await provider.sendOtp('9876543210');
-      await provider.verifyOtp('123456');
-      expect(provider.state, AuthState.authenticated);
+      await provider.login();
       expect(provider.isLoggedIn, isTrue);
 
       await provider.signOut();
 
       expect(provider.state, AuthState.initial);
       expect(provider.isLoggedIn, isFalse);
-      expect(provider.verificationId, isNull);
       expect(provider.errorMessage, isNull);
-      expect(provider.phoneNumber, isNull);
-      expect(provider.isNewUser, isFalse);
-    });
-  });
-
-  group('AuthProvider — JWT storage after verification', () {
-    test('successful verifyOtp stores token and userId in LocalStorage', () async {
-      final auth = FakeAuthService();
-      final api = FakeApiService()
-        ..stubbedToken = 'test-jwt-abc'
-        ..stubbedUserId = 'user-uuid-xyz';
-      final provider = await _makeProvider(authService: auth, apiService: api);
-
-      await provider.sendOtp('9876543210');
-      await provider.verifyOtp('123456');
-
-      expect(LocalStorageService.authToken, 'test-jwt-abc');
-      expect(LocalStorageService.userId, 'user-uuid-xyz');
-      expect(LocalStorageService.isLoggedIn, isTrue);
     });
   });
 }

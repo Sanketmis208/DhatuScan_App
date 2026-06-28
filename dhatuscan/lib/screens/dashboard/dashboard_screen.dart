@@ -11,6 +11,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/assessment_provider.dart';
 import '../../providers/history_provider.dart';
 import '../../providers/user_provider.dart';
+import '../../models/user_model.dart';
 import '../../services/local_storage_service.dart';
 import '../../core/utils/score_calculator.dart';
 import '../../widgets/common/loading_shimmer.dart';
@@ -210,7 +211,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
       children: [
         // ── Header banner ─────────────────────────────────────────────────
-        _buildHeaderBanner(firstName),
+        _buildHeaderBanner(user),
 
         const SizedBox(height: 20),
 
@@ -316,7 +317,8 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildHeaderBanner(String firstName) {
+  Widget _buildHeaderBanner(UserModel? user) {
+    final firstName = user?.name?.split(' ').first ?? 'Friend';
     final hour = DateTime.now().hour;
     final greeting = hour < 12
         ? 'Good Morning'
@@ -367,17 +369,20 @@ class _DashboardScreenState extends State<DashboardScreen>
               ],
             ),
           ),
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.person_outline_rounded,
-              color: Colors.white,
-              size: 28,
+          GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(AppRoutes.profileDetails),
+            child: Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.person_outline_rounded,
+                color: Colors.white,
+                size: 28,
+              ),
             ),
           ),
         ],

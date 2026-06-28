@@ -1,27 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
-
-/// Abstract interface for Firebase-based OTP authentication.
+/// Abstract interface for Google OAuth authentication.
 ///
 /// Extracted so that [AuthProvider] can be tested with fakes
-/// without requiring a live Firebase connection.
+/// without requiring a live Google/Firebase connection.
 abstract class AuthServiceInterface {
-  Future<void> sendOtp({
-    required String phoneNumber,
-    required Function(String verificationId, int? resendToken) onCodeSent,
-    required Function(FirebaseAuthException error) onVerificationFailed,
-    required Function(PhoneAuthCredential credential) onAutoVerify,
-    int? resendToken,
-  });
+  /// Initiates Google Sign-In and returns the Google ID Token.
+  Future<String?> signInWithGoogle();
 
-  Future<UserCredential?> verifyOtp({
-    required String verificationId,
-    required String smsCode,
-  });
-
-  Future<UserCredential?> signInWithCredential(PhoneAuthCredential credential);
-
+  /// Logs out of Google.
   Future<void> signOut();
 
-  User? get currentUser;
-  String? get firebaseUid;
+  /// The unique Google ID of the currently logged-in user, if any.
+  String? get googleId;
 }

@@ -10,6 +10,7 @@ class AppRoutes {
   static const String phoneInput      = '/phone';
   static const String otpVerify       = '/otp';
   static const String personalDetails = '/profile/new';
+  static const String profileDetails = '/profile/details';
 
   // ── Main ──────────────────────────────────────────────────────────────────
   static const String dashboard       = '/dashboard';

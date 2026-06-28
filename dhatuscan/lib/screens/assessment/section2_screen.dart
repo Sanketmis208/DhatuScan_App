@@ -121,14 +121,7 @@ class _Section2ScreenState extends State<Section2Screen> {
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    Text(
-                      'Max Score: ${currentSection.maxScore} pts',
-                      style: GoogleFonts.lato(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
-                    ),
+                    const SizedBox.shrink(),
                   ],
                 ),
               ),

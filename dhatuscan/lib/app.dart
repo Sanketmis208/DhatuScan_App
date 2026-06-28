@@ -6,8 +6,6 @@ import 'core/theme/app_theme.dart';
 import 'screens/assessment/assessment_home_screen.dart';
 import 'screens/assessment/section1_screen.dart';
 import 'screens/assessment/section2_screen.dart';
-import 'screens/auth/otp_verification_screen.dart';
-import 'screens/auth/phone_input_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/landing/landing_screen.dart';
 import 'screens/onboarding/personal_details_screen.dart';
@@ -15,6 +13,7 @@ import 'screens/recommendations/recommendations_screen.dart';
 import 'screens/result/result_screen.dart';
 import 'screens/splash/splash_screen.dart';
 import 'screens/dashboard/history_screen.dart';
+import 'screens/profile/profile_details_screen.dart';
 
 class DhatuScanApp extends StatelessWidget {
   const DhatuScanApp({super.key});
@@ -35,9 +34,8 @@ class DhatuScanApp extends StatelessWidget {
         // ── Auth / Onboarding ───────────────────────────────────────────────
         AppRoutes.splash:          (_) => const SplashScreen(),
         AppRoutes.landing:         (_) => const LandingScreen(),
-        AppRoutes.phoneInput:      (_) => const PhoneInputScreen(),
-        AppRoutes.otpVerify:       (_) => const OtpVerificationScreen(),
         AppRoutes.personalDetails: (_) => const PersonalDetailsScreen(),
+        AppRoutes.profileDetails:  (_) => const ProfileDetailsScreen(),
 
         // ── Main ────────────────────────────────────────────────────────────
         AppRoutes.dashboard:       (_) => const DashboardScreen(),
