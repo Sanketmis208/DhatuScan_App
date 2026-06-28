@@ -21,7 +21,13 @@ import 'local_storage_service.dart';
 class ApiService implements ApiServiceInterface {
   // ── Base URL ──────────────────────────────────────────────────────────────
   // Override with a production URL via app_config.dart or a build argument.
+  // To test on a physical device, uncomment the line below and paste your ngrok URL:
+  // static const String _ngrokUrl = 'https://xxxx.ngrok-free.app/api';
+
   static String get baseUrl {
+    // If you uncommented _ngrokUrl above, use it here:
+    // return _ngrokUrl;
+
     try {
       if (Platform.isAndroid) {
         return 'http://10.0.2.2:3000/api';
